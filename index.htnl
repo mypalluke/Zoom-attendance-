@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Sheet - Group Summary</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @media print {
+      @page {
+        size: letter portrait;
+        margin: 0.2in;
+      }
+      body {
+        background-color: white !important;
+        color: black !important;
+        font-size: 10px !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .sheet-container {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+      input {
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        outline: none !important;
+      }
+      .check-cell {
+        background-color: transparent !important;
+      }
+      .bg-emerald-50 {
+        background-color: transparent !important;
+      }
+    }
+
+    /* Standard Table Styling */
+    .group-table {
+      border-collapse: collapse;
+      width: 100%;
+      table-layout: fixed;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .group-table th, .group-table td {
+      border: 1px solid #333333;
+      padding: 1px 3px;
+      font-size: 11px;
+      line-height: 1.15;
+      height: 19px;
+    }
+
+    .group-header-1 {
+      background-color: #4a4a4a !important;
+      color: white !important;
+      font-weight: bold;
+      font-size: 12px;
+      text-align: left;
+      padding: 3px 5px !important;
+    }
+
+    .group-header-2 {
+      background-color: #666666 !important;
+      color: white !important;
+      font-weight: bold;
+      font-size: 11px;
+      text-align: left;
+      padding: 2px 5px !important;
+    }
+
+    .faded-text {
+      color: #888888;
+    }
+
+    .check-cell {
+      width: 26px;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .check-mark {
+      font-weight: bold;
+      font-size: 14px;
+      color: #000000;
+    }
+
+    .ruled-line {
+      border-bottom: 1px solid #444;
+      height: 22px;
+    }
+
+    /* Print styling overrides */
+    .btn-action {
+      transition: all 0.2s ease;
+    }
+    .btn-action:hover {
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen text-gray-900 font-sans">
+
+  <!-- Control Toolbar (Hidden in Print) -->
+  <header class="no-print bg-slate-800 text-white shadow-md py-3 px-4 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
+      <div class="flex items-center space-x-3">
+        <i class="fa-solid fa-clipboard-user text-xl text-emerald-400"></i>
+        <div>
+          <h1 class="font-bold text-lg leading-tight">Attendance Sheet Generator</h1>
+          <p class="text-xs text-gray-300">Checkmarks = Zoom Attendance • Manually enter In-Person total</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button onclick="loadSampleData()" class="btn-action bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded text-xs font-semibold flex items-center gap-1.5 shadow">
+          <i class="fa-solid fa-file-signature"></i> Load Sample Data
+        </button>
+        <button onclick="clearAllChecks()" class="btn-action bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded text-xs font-semibold flex items-center gap-1.5 shadow">
+          <i class="fa-solid fa-rotate-left"></i> Clear All Checks
+        </button>
+        <button onclick="addExtraAttendeePrompt()" class="btn-action bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs font-semibold flex items-center gap-1.5 shadow">
+          <i class="fa-solid fa-user-plus"></i> Add Extra Person
+        </button>
+        <button onclick="window.print()" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 shadow-lg">
+          <i class="fa-solid fa-print"></i> Print Sheet
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Sheet Container -->
+  <main class="py-6 px-2 sm:px-4 flex justify-center">
+    <div class="sheet-container bg-white shadow-xl border border-gray-300 p-4 rounded-sm w-full max-w-[1020px]">
+      
+      <!-- Top Row: Groups 1, 2, 3 -->
+      <div class="grid grid-cols-3 gap-2 mb-3">
+        <!-- Group 1 -->
+        <div id="group-container-1"></div>
+        <!-- Group 2 -->
+        <div id="group-container-2"></div>
+        <!-- Group 3 -->
+        <div id="group-container-3"></div>
+      </div>
+
+      <!-- Bottom Row: Groups 4, 5, 6 + Extra Area & Summary -->
+      <div class="grid grid-cols-12 gap-2">
+        <!-- Group 4 (Cols 1..4) -->
+        <div class="col-span-4" id="group-container-4"></div>
+
+        <!-- Group 5 (Cols 5..8) -->
+        <div class="col-span-4" id="group-container-5"></div>
+
+        <!-- Group 6 + Side Extra Section (Cols 9..12) -->
+        <div class="col-span-4 flex flex-col justify-between">
+          <div id="group-container-6"></div>
+
+          <!-- Extra Attendees & Summary Section -->
+          <div class="flex gap-2 mt-2 items-end">
+            
+            <!-- Extra People handwritten/typed area -->
+            <div class="flex-1 border border-gray-500 p-1.5 bg-gray-50/50 rounded-sm">
+              <div class="flex justify-between items-center mb-1 no-print">
+                <span class="text-[10px] font-bold text-gray-700 uppercase tracking-wider">Extra Attendees</span>
+                <button onclick="addExtraAttendeePrompt()" class="text-[10px] text-blue-600 font-bold hover:underline">+ Add</button>
+              </div>
+
+              <div id="extra-attendees-list" class="space-y-1">
+                <!-- Dynamic or Ruled lines -->
+              </div>
+            </div>
+
+            <!-- Bottom Right Summary Box -->
+            <div class="w-44 border-2 border-black p-1.5 bg-white shrink-0">
+              <div class="flex justify-between items-center border-b border-black pb-1 mb-1">
+                <span class="font-bold text-xs">Date:</span>
+                <input type="text" id="date-input" value="" placeholder="MM-DD-YY" class="w-20 text-right font-bold text-xs outline-none bg-transparent">
+              </div>
+              <div class="flex justify-between items-center border-b border-black pb-1 mb-1">
+                <span class="font-bold text-xs">Zoom Total:</span>
+                <input type="number" id="zoom-total" value="0" readonly class="w-14 text-right font-bold text-xs outline-none bg-transparent cursor-default">
+              </div>
+              <div class="flex justify-between items-center border-b border-black pb-1 mb-1">
+                <span class="font-bold text-xs">In-Person:</span>
+                <input type="number" id="in-person-total" value="0" placeholder="0" class="w-14 text-right font-bold text-xs outline-none bg-transparent focus:bg-amber-50 rounded" oninput="calculateTotals()">
+              </div>
+              <div class="flex justify-between items-center pt-0.5 font-extrabold text-sm">
+                <span>Total:</span>
+                <input type="number" id="grand-total" value="0" readonly class="w-16 text-right font-extrabold text-sm outline-none bg-transparent cursor-default">
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    // Complete Master Data matching the image exactly
+    const groupData = [
+      {
+        id: 1,
+        title: "Gary Keba Group",
+        subtitle: "Keba Home",
+        targetRows: 24,
+        members: [
+          { firstName: "Gary", lastName: "Keba", role1: "Elder", role2: "GO", faded: false },
+          { firstName: "Peter", lastName: "Longdyke", role1: "MS", role2: "GA", faded: false },
+          { firstName: "Kathy", lastName: "Cope", role1: "", role2: "", faded: false },
+          { firstName: "Megan", lastName: "Cope", role1: "", role2: "", faded: false },
+          { firstName: "Neal", lastName: "Griffith", role1: "MS", role2: "", faded: false },
+          { firstName: "Robin", lastName: "Griffith", role1: "", role2: "", faded: false },
+          { firstName: "Connie", lastName: "Hope", role1: "", role2: "", faded: false },
+          { firstName: "Deb", lastName: "Keba", role1: "", role2: "", faded: false },
+          { firstName: "Amy", lastName: "Longdyke", role1: "", role2: "", faded: false },
+          { firstName: "Mario", lastName: "Martinez", role1: "", role2: "", faded: false },
+          { firstName: "Roger", lastName: "Onufer", role1: "", role2: "", faded: false },
+          { firstName: "Steve", lastName: "Palese", role1: "", role2: "", faded: false },
+          { firstName: "Thomas", lastName: "Shubitowski", role1: "", role2: "", faded: false },
+          { firstName: "Renia", lastName: "Shubitowski", role1: "", role2: "", faded: false },
+          { firstName: "Ralph", lastName: "Simmerok", role1: "Elder", role2: "", faded: false },
+          { firstName: "Diane", lastName: "Simmerok", role1: "", role2: "", faded: false },
+          { firstName: "Laura", lastName: "Vasil", role1: "", role2: "", faded: false },
+          { firstName: "Joe", lastName: "West", role1: "", role2: "", faded: false },
+          { firstName: "Jennifer", lastName: "West", role1: "", role2: "", faded: false },
+          { firstName: "Lisa", lastName: "Whitener", role1: "", role2: "", faded: false },
+          { firstName: "Cooper", lastName: "Mellow", role1: "", role2: "", faded: true },
+          { firstName: "Adam", lastName: "Sanner", role1: "", role2: "", faded: true },
+          { firstName: "Alanna", lastName: "Sanner", role1: "", role2: "", faded: true },
+          { firstName: "Andrea", lastName: "Sanner", role1: "", role2: "", faded: true }
+        ]
+      },
+      {
+        id: 2,
+        title: "Kevin Rourke Group",
+        subtitle: "Breazeale Home",
+        targetRows: 24,
+        members: [
+          { firstName: "Kevin", lastName: "Rourke", role1: "Elder", role2: "GO/SP", faded: false },
+          { firstName: "Joseph", lastName: "Schulte", role1: "MS", role2: "GA", faded: false },
+          { firstName: "Halle", lastName: "Baum", role1: "", role2: "", faded: false },
+          { firstName: "Shirley", lastName: "Baum", role1: "", role2: "", faded: false },
+          { firstName: "Nancy", lastName: "Breazeale", role1: "", role2: "", faded: false },
+          { firstName: "Jennifer", lastName: "Breazeale", role1: "", role2: "", faded: false },
+          { firstName: "Lauren", lastName: "Breazeale", role1: "", role2: "", faded: false },
+          { firstName: "Margaret", lastName: "Brown", role1: "", role2: "", faded: false },
+          { firstName: "William", lastName: "Clouser", role1: "", role2: "", faded: false },
+          { firstName: "Lynne", lastName: "Freeman", role1: "", role2: "", faded: false },
+          { firstName: "Joe", lastName: "Haines", role1: "MS", role2: "", faded: false },
+          { firstName: "Rick", lastName: "Kraus", role1: "MS", role2: "", faded: false },
+          { firstName: "Lisa", lastName: "Kraus", role1: "", role2: "", faded: false },
+          { firstName: "Jane", lastName: "Littrell", role1: "", role2: "", faded: false },
+          { firstName: "Mary", lastName: "Rourke", role1: "", role2: "", faded: false },
+          { firstName: "Coralie", lastName: "Schulte", role1: "", role2: "", faded: false },
+          { firstName: "Leo", lastName: "Tobar", role1: "", role2: "", faded: false },
+          { firstName: "Nicole", lastName: "Tobar", role1: "", role2: "", faded: false },
+          { firstName: "Addison", lastName: "Tobar", role1: "", role2: "", faded: false },
+          { firstName: "Pat Jenkins", lastName: "Jenkins", role1: "", role2: "", faded: true },
+          { firstName: "Doug", lastName: "Kuelz", role1: "", role2: "", faded: true }
+        ]
+      },
+      {
+        id: 3,
+        title: "Paul Harrison Jr Group",
+        subtitle: "P Harrison Jr Home",
+        targetRows: 24,
+        members: [
+          { firstName: "Paul Jr", lastName: "Harrison", role1: "Elder", role2: "GO/RP", faded: false },
+          { firstName: "Robert", lastName: "Harrison", role1: "Elder", role2: "GA/RP", faded: false },
+          { firstName: "Linda", lastName: "Alessi", role1: "", role2: "", faded: false },
+          { firstName: "Eduardo", lastName: "Campos", role1: "", role2: "", faded: false },
+          { firstName: "Mariana", lastName: "Campos", role1: "", role2: "", faded: false },
+          { firstName: "Jo", lastName: "Comfort", role1: "", role2: "", faded: false },
+          { firstName: "Mikiko", lastName: "Ellis", role1: "", role2: "", faded: false },
+          { firstName: "Diana", lastName: "Fox", role1: "", role2: "", faded: false },
+          { firstName: "Adriana", lastName: "Harrison", role1: "", role2: "", faded: false },
+          { firstName: "Deidre", lastName: "Harrison", role1: "", role2: "", faded: false },
+          { firstName: "Mia", lastName: "Harrison", role1: "", role2: "", faded: false },
+          { firstName: "Aiden", lastName: "Harrison", role1: "", role2: "", faded: false },
+          { firstName: "Paul Sr", lastName: "Harrison", role1: "Elder", role2: "", faded: false },
+          { firstName: "Kristi", lastName: "Harrison", role1: "", role2: "", faded: false },
+          { firstName: "John", lastName: "McCann", role1: "", role2: "", faded: false },
+          { firstName: "Karen", lastName: "McCann", role1: "", role2: "", faded: false },
+          { firstName: "Krystal", lastName: "McCann", role1: "", role2: "", faded: false },
+          { firstName: "David", lastName: "McCann", role1: "", role2: "", faded: false },
+          { firstName: "Erika", lastName: "Sobeck", role1: "", role2: "", faded: false }
+        ]
+      },
+      {
+        id: 4,
+        title: "Matt Kruse Group",
+        subtitle: "M Kruse Home",
+        targetRows: 26,
+        members: [
+          { firstName: "Matt", lastName: "Kruse", role1: "Elder, RP", role2: "GO/RP", faded: false },
+          { firstName: "Tyler", lastName: "Breazeale", role1: "MS", role2: "GA", faded: false },
+          { firstName: "Mandy", lastName: "Babbitt", role1: "", role2: "", faded: false },
+          { firstName: "Larry", lastName: "Breazeale", role1: "", role2: "", faded: false },
+          { firstName: "Cherity", lastName: "Breazeale", role1: "", role2: "", faded: false },
+          { firstName: "Kayla", lastName: "Breazeale", role1: "", role2: "", faded: false },
+          { firstName: "Holly", lastName: "Cormier", role1: "", role2: "", faded: false },
+          { firstName: "Edward", lastName: "Eggley", role1: "", role2: "", faded: false },
+          { firstName: "Lynn", lastName: "Eggley", role1: "", role2: "", faded: false },
+          { firstName: "Phillip", lastName: "Goers", role1: "", role2: "", faded: false },
+          { firstName: "Vickie", lastName: "Goers", role1: "", role2: "", faded: false },
+          { firstName: "Megan", lastName: "Goodwin", role1: "", role2: "", faded: false },
+          { firstName: "Diane", lastName: "Hagopian", role1: "", role2: "", faded: false },
+          { firstName: "Dewaine", lastName: "Hall", role1: "", role2: "", faded: false },
+          { firstName: "Rebekah", lastName: "Hall", role1: "", role2: "", faded: false },
+          { firstName: "Timothy", lastName: "Hall", role1: "", role2: "", faded: false },
+          { firstName: "Viki", lastName: "Kruse", role1: "", role2: "", faded: false },
+          { firstName: "Kolby", lastName: "Kruse", role1: "", role2: "", faded: false },
+          { firstName: "Richard", lastName: "Kruse", role1: "", role2: "", faded: false },
+          { firstName: "Jeannette", lastName: "Kruse", role1: "", role2: "", faded: false },
+          { firstName: "Jennifer", lastName: "Wood", role1: "", role2: "", faded: false },
+          { firstName: "Dennis", lastName: "Wright", role1: "", role2: "", faded: false },
+          { firstName: "Kim", lastName: "Wright", role1: "", role2: "", faded: false },
+          { firstName: "Matthew", lastName: "Hall", role1: "", role2: "", faded: true },
+          { firstName: "Geneva", lastName: "Rogers", role1: "", role2: "", faded: true },
+          { firstName: "Jimmy", lastName: "Rogers", role1: "", role2: "", faded: true }
+        ]
+      },
+      {
+        id: 5,
+        title: "Robert Miranda Group",
+        subtitle: "Kingdom Hall",
+        targetRows: 26,
+        members: [
+          { firstName: "Robert", lastName: "Miranda", role1: "Elder", role2: "GO/AP", faded: false },
+          { firstName: "Luke", lastName: "Holland", role1: "Elder", role2: "GA", faded: false },
+          { firstName: "Amy", lastName: "Austin", role1: "", role2: "", faded: false },
+          { firstName: "Katherine", lastName: "Bass", role1: "", role2: "", faded: false },
+          { firstName: "Jesse", lastName: "Clifton", role1: "", role2: "", faded: false },
+          { firstName: "Ann", lastName: "Clifton", role1: "", role2: "", faded: false },
+          { firstName: "Jessica", lastName: "Clifton", role1: "", role2: "", faded: false },
+          { firstName: "Clay", lastName: "Ford", role1: "", role2: "", faded: false },
+          { firstName: "James", lastName: "Harrison", role1: "", role2: "", faded: false },
+          { firstName: "Jessica", lastName: "Holland", role1: "", role2: "", faded: false },
+          { firstName: "Hudson", lastName: "Holland", role1: "MS", role2: "", faded: false },
+          { firstName: "Weston", lastName: "Holland", role1: "", role2: "", faded: false },
+          { firstName: "Sawyer", lastName: "Holland", role1: "", role2: "", faded: false },
+          { firstName: "Isaak", lastName: "Holland", role1: "", role2: "", faded: false },
+          { firstName: "Janice", lastName: "King", role1: "", role2: "", faded: false },
+          { firstName: "Terri", lastName: "Kruger", role1: "", role2: "", faded: false },
+          { firstName: "Kayla", lastName: "Martinez", role1: "", role2: "", faded: false },
+          { firstName: "Marylynn", lastName: "Miranda", role1: "", role2: "", faded: false },
+          { firstName: "Robert", lastName: "Raymond", role1: "", role2: "", faded: false },
+          { firstName: "Jeannie", lastName: "Raymond", role1: "", role2: "", faded: false },
+          { firstName: "Tammy", lastName: "Griffin", role1: "", role2: "", faded: true },
+          { firstName: "Brook", lastName: "Holland", role1: "", role2: "", faded: true },
+          { firstName: "Louise", lastName: "Weeks", role1: "", role2: "", faded: true }
+        ]
+      },
+      {
+        id: 6,
+        title: "Larry Goodwin Group",
+        subtitle: "Janvary Home",
+        targetRows: 26,
+        members: [
+          { firstName: "Larry", lastName: "Goodwin", role1: "Elder", role2: "GO", faded: false },
+          { firstName: "Val", lastName: "January", role1: "Elder", role2: "GA", faded: false },
+          { firstName: "Mark", lastName: "Bailey", role1: "", role2: "", faded: false },
+          { firstName: "Kerri", lastName: "Bailey", role1: "", role2: "", faded: false },
+          { firstName: "Seth", lastName: "Clouser", role1: "", role2: "", faded: false },
+          { firstName: "Michelle", lastName: "Clouser", role1: "", role2: "", faded: false },
+          { firstName: "Judy", lastName: "Goodwin", role1: "", role2: "", faded: false },
+          { firstName: "Claire", lastName: "January", role1: "", role2: "", faded: false },
+          { firstName: "Doug", lastName: "Lawhon", role1: "", role2: "", faded: false },
+          { firstName: "Claudia", lastName: "Lawhon", role1: "", role2: "", faded: false },
+          { firstName: "Joe", lastName: "Miller", role1: "", role2: "", faded: false },
+          { firstName: "Cindy", lastName: "Miller", role1: "", role2: "", faded: false },
+          { firstName: "Isaiah", lastName: "Peterson", role1: "", role2: "", faded: false },
+          { firstName: "Jordan", lastName: "Peterson", role1: "", role2: "", faded: false },
+          { firstName: "Rob", lastName: "Singleton", role1: "", role2: "", faded: false },
+          { firstName: "Cristal", lastName: "Singleton", role1: "", role2: "", faded: false },
+          { firstName: "Jayven", lastName: "Singleton", role1: "", role2: "", faded: false },
+          { firstName: "Eric", lastName: "Wright", role1: "", role2: "", faded: false },
+          { firstName: "Sarah", lastName: "Wright", role1: "", role2: "", faded: false },
+          { firstName: "Keith", lastName: "Graves", role1: "", role2: "", faded: true },
+          { firstName: "Lisa", lastName: "Graves", role1: "", role2: "", faded: true },
+          { firstName: "Joy", lastName: "Jarrard", role1: "", role2: "", faded: true }
+        ]
+      }
+    ];
+
+    // Attendance State
+    let attendanceState = {};
+    let extraAttendees = [];
+    let manualGroupTotals = {};
+
+    function getFormattedCurrentDate() {
+      const today = new Date();
+      const month = today.getMonth() + 1;
+      const day = today.getDate();
+      const year = today.getFullYear().toString().slice(-2);
+      return `${month}-${day}-${year}`;
+    }
+
+    function init() {
+      document.getElementById('date-input').value = getFormattedCurrentDate();
+      renderSheet();
+      calculateTotals();
+    }
+
+    function renderSheet() {
+      groupData.forEach(group => {
+        const container = document.getElementById(`group-container-${group.id}`);
+        if (!container) return;
+
+        let rowsHtml = '';
+        let groupCheckedCount = 0;
+
+        group.members.forEach((m, idx) => {
+          const key = `g${group.id}_m${idx}`;
+          const isChecked = !!attendanceState[key];
+          if (isChecked) groupCheckedCount++;
+
+          rowsHtml += `
+            <tr class="${m.faded ? 'faded-text' : ''} ${isChecked ? 'bg-emerald-50' : ''} transition-colors cursor-pointer" onclick="toggleCheck(${group.id}, ${idx})">
+              <td class="text-left font-medium overflow-hidden whitespace-nowrap">${m.firstName}</td>
+              <td class="text-left overflow-hidden whitespace-nowrap">${m.lastName}</td>
+              <td class="text-center text-[10px] overflow-hidden whitespace-nowrap">${m.role1 || ''}</td>
+              <td class="text-center text-[10px] overflow-hidden whitespace-nowrap">${m.role2 || ''}</td>
+              <td class="check-cell">
+                ${isChecked ? '<span class="check-mark">✓</span>' : ''}
+              </td>
+            </tr>
+          `;
+        });
+
+        // Fill empty rows to maintain exact sheet proportions
+        const emptyRowsNeeded = Math.max(0, group.targetRows - group.members.length);
+        for (let i = 0; i < emptyRowsNeeded; i++) {
+          rowsHtml += `
+            <tr>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td class="check-cell">&nbsp;</td>
+            </tr>
+          `;
+        }
+
+        const displayTotal = manualGroupTotals[group.id] !== undefined ? manualGroupTotals[group.id] : (groupCheckedCount || '');
+
+        container.innerHTML = `
+          <table class="group-table">
+            <thead>
+              <tr>
+                <th colspan="5" class="group-header-1">${group.title}</th>
+              </tr>
+              <tr>
+                <th colspan="5" class="group-header-2">${group.subtitle}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+            <tfoot>
+              <tr class="font-bold bg-gray-50">
+                <td colspan="4" class="text-left px-1.5 border border-gray-700">Group Total:</td>
+                <td class="text-center border border-gray-700">
+                  <input type="text" id="group-total-${group.id}" value="${displayTotal}" onchange="setManualTotal(${group.id}, this.value)" class="w-full text-center font-bold outline-none bg-transparent">
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        `;
+      });
+
+      renderExtraAttendees();
+    }
+
+    function toggleCheck(groupId, memberIdx) {
+      const key = `g${groupId}_m${memberIdx}`;
+      attendanceState[key] = !attendanceState[key];
+      
+      // Reset manual override for group total if user clicks checks
+      delete manualGroupTotals[groupId];
+      
+      renderSheet();
+      calculateTotals();
+    }
+
+    function renderExtraAttendees() {
+      const container = document.getElementById('extra-attendees-list');
+      if (!container) return;
+
+      if (extraAttendees.length === 0) {
+        let emptyLines = '';
+        for (let i = 0; i < 7; i++) {
+          emptyLines += `<div class="ruled-line"></div>`;
+        }
+        container.innerHTML = emptyLines;
+        return;
+      }
+
+      let html = '';
+      extraAttendees.forEach((person, idx) => {
+        html += `
+          <div class="flex items-center justify-between text-xs py-0.5 border-b border-gray-400">
+            <span class="font-semibold uppercase tracking-wide">${person.name} ${person.count > 1 ? `- ${person.count}` : ''}</span>
+            <div class="flex items-center gap-2 no-print">
+              <button onclick="removeExtraAttendee(${idx})" class="text-red-500 hover:text-red-700 text-[10px]"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function addExtraAttendeePrompt() {
+      const name = prompt("Enter extra attendee name (e.g., K. SINGLETARY):");
+      if (!name || !name.trim()) return;
+      
+      const countStr = prompt("Enter count (usually 1):", "1");
+      const count = parseInt(countStr) || 1;
+
+      extraAttendees.push({ name: name.trim().toUpperCase(), count: count });
+      renderExtraAttendees();
+      calculateTotals();
+    }
+
+    function removeExtraAttendee(idx) {
+      extraAttendees.splice(idx, 1);
+      renderExtraAttendees();
+      calculateTotals();
+    }
+
+    function setManualTotal(groupId, val) {
+      if (val === '') {
+        delete manualGroupTotals[groupId];
+      } else {
+        manualGroupTotals[groupId] = val;
+      }
+      calculateTotals();
+    }
+
+    function calculateTotals() {
+      let zoomTotalFromChecks = 0;
+
+      groupData.forEach(group => {
+        let groupChecked = 0;
+        group.members.forEach((m, idx) => {
+          if (attendanceState[`g${group.id}_m${idx}`]) {
+            groupChecked++;
+          }
+        });
+
+        const effectiveTotal = manualGroupTotals[group.id] !== undefined ? (parseInt(manualGroupTotals[group.id]) || 0) : groupChecked;
+        
+        // Update input display for group total if present
+        const groupInput = document.getElementById(`group-total-${group.id}`);
+        if (groupInput && manualGroupTotals[group.id] === undefined) {
+          groupInput.value = groupChecked || '';
+        }
+
+        zoomTotalFromChecks += effectiveTotal;
+      });
+
+      // Zoom Total equals total checkmarks
+      document.getElementById('zoom-total').value = zoomTotalFromChecks;
+
+      // In-person attendance is manually entered
+      const inPersonVal = parseInt(document.getElementById('in-person-total').value) || 0;
+
+      // Extra Attendees count
+      let extraCount = 0;
+      extraAttendees.forEach(p => {
+        extraCount += p.count;
+      });
+
+      // Grand Total = Zoom + In-Person + Extra Attendees
+      document.getElementById('grand-total').value = zoomTotalFromChecks + inPersonVal + extraCount;
+    }
+
+    function clearAllChecks() {
+      attendanceState = {};
+      extraAttendees = [];
+      manualGroupTotals = {};
+      document.getElementById('date-input').value = getFormattedCurrentDate();
+      document.getElementById('zoom-total').value = '0';
+      document.getElementById('in-person-total').value = '0';
+      document.getElementById('grand-total').value = '0';
+      renderSheet();
+      calculateTotals();
+    }
+
+    function loadSampleData() {
+      attendanceState = {};
+
+      // Sample Checks from provided image
+      attendanceState['g1_m11'] = true;
+      attendanceState['g1_m16'] = true;
+      attendanceState['g1_m20'] = true;
+
+      attendanceState['g2_m8'] = true;
+      attendanceState['g2_m13'] = true;
+
+      attendanceState['g3_m5'] = true;
+      attendanceState['g3_m16'] = true;
+
+      attendanceState['g4_m2'] = true;
+      attendanceState['g4_m18'] = true;
+
+      attendanceState['g5_m16'] = true;
+
+      attendanceState['g6_m1'] = true;
+      attendanceState['g6_m2'] = true;
+      attendanceState['g6_m3'] = true;
+      attendanceState['g6_m7'] = true;
+      attendanceState['g6_m8'] = true;
+      attendanceState['g6_m9'] = true;
+      attendanceState['g6_m10'] = true;
+      attendanceState['g6_m11'] = true;
+      attendanceState['g6_m12'] = true;
+      attendanceState['g6_m13'] = true;
+      attendanceState['g6_m14'] = true;
+      attendanceState['g6_m19'] = true;
+      attendanceState['g6_m20'] = true;
+
+      // Handwritten Extra Attendees from example image
+      extraAttendees = [
+        { name: "K. SINGLETARY", count: 1 },
+        { name: "J. COMFORT", count: 1 },
+        { name: "K. AUSTIN", count: 1 },
+        { name: "HAL", count: 1 },
+        { name: "R. BAKER", count: 1 },
+        { name: "TIM B", count: 1 },
+        { name: "TIMOTHY", count: 1 },
+        { name: "NIETO", count: 2 }
+      ];
+
+      document.getElementById('date-input').value = getFormattedCurrentDate();
+      document.getElementById('in-person-total').value = '80';
+
+      renderSheet();
+      calculateTotals();
+    }
+
+    // Initialize on load
+    window.onload = init;
+  </script>
+</body>
+</html>
+
+
