@@ -2,13 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Attendance Sheet - Group Summary</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Attendance Sheet</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    /* SCREEN STYLES (Mobile First) */
+    @media screen {
+      .print-only-sheet {
+        display: none !important;
+      }
+    }
+
+    /* PRINT STYLES (Exact 6-Group Template) */
     @media print {
       @page {
         size: letter portrait;
@@ -25,48 +33,73 @@
         font-size: 9px !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
-        overflow: hidden !important;
+        overflow: visible !important;
       }
 
-      .no-print {
+      .mobile-ui {
         display: none !important;
       }
 
-      main {
-        padding: 0 !important;
-        margin: 0 !important;
+      .print-only-sheet {
         display: block !important;
-      }
-
-      .sheet-container {
         box-shadow: none !important;
         border: none !important;
         padding: 0 !important;
         margin: 0 auto !important;
         width: 100% !important;
         max-width: 100% !important;
-        transform-origin: top center;
         page-break-inside: avoid !important;
-        page-break-after: avoid !important;
+      }
+
+      .group-table {
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed;
+        font-family: Arial, Helvetica, sans-serif;
       }
 
       .group-table th, .group-table td {
-        padding: 0px 3px !important;
+        border: 1px solid #333333;
+        padding: 0px 2px !important;
         font-size: 8.8px !important;
         line-height: 1.1 !important;
         height: 15px !important;
       }
 
       .group-header-1 {
+        background-color: #334155 !important;
+        color: white !important;
+        font-weight: bold;
         font-size: 9.5px !important;
-        padding: 1px 3px !important;
-        background-color: #1e293b !important;
+        padding: 1.5px 3px !important;
       }
 
       .group-header-2 {
+        background-color: #475569 !important;
+        color: white !important;
+        font-weight: bold;
         font-size: 8.5px !important;
         padding: 1px 3px !important;
-        background-color: #475569 !important;
+      }
+
+      .faded-text {
+        color: #888888;
+      }
+
+      .check-cell {
+        width: 24px;
+        text-align: center;
+      }
+
+      .check-mark {
+        font-weight: bold;
+        font-size: 13px;
+        color: #000000;
+      }
+
+      .ruled-line {
+        border-bottom: 1px solid #444;
+        height: 17px;
       }
 
       input {
@@ -75,270 +108,234 @@
         box-shadow: none !important;
         outline: none !important;
       }
-
-      .check-cell {
-        background-color: transparent !important;
-      }
-
-      .bg-emerald-100\/80 {
-        background-color: #e6f4ea !important;
-      }
-
-      .ruled-line {
-        height: 16px !important;
-      }
-
-      .role-badge {
-        font-size: 7.5px !important;
-        border: none !important;
-        background: transparent !important;
-        padding: 0 !important;
-      }
-
-      .even-row {
-        background-color: #f8fafc !important;
-      }
     }
 
-    /* Standard Table Styling for Screen */
-    .group-table {
-      border-collapse: collapse;
-      width: 100%;
-      table-layout: fixed;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-
-    .group-table th, .group-table td {
-      border: 1px solid #cbd5e1;
-      padding: 1.5px 4px;
-      font-size: 11px;
-      line-height: 1.15;
-      height: 18px;
-    }
-
-    .comfortable-mode .group-table th, 
-    .comfortable-mode .group-table td {
-      font-size: 12px;
-      height: 20px;
-      padding: 2px 5px;
-    }
-
-    .group-header-1 {
-      background-color: #1e293b !important; /* Slate 800 */
-      color: white !important;
-      font-weight: 700;
-      font-size: 11.5px;
-      text-align: left;
-      padding: 2.5px 5px !important;
-      letter-spacing: 0.02em;
-    }
-
-    .group-header-2 {
-      background-color: #475569 !important; /* Slate 600 */
-      color: white !important;
-      font-weight: 600;
-      font-size: 10.5px;
-      text-align: left;
-      padding: 2px 5px !important;
-    }
-
-    .faded-text {
-      color: #94a3b8;
-    }
-
-    .check-cell {
-      width: 24px;
-      text-align: center;
-      cursor: pointer;
+    /* Custom touch optimizations */
+    .touch-row {
+      -webkit-tap-highlight-color: transparent;
       user-select: none;
-    }
-
-    .check-mark {
-      font-weight: 800;
-      font-size: 13px;
-      color: #047857;
-    }
-
-    .ruled-line {
-      border-bottom: 1px solid #cbd5e1;
-      height: 19px;
-    }
-
-    .role-badge {
-      font-size: 8.5px;
-      font-weight: 600;
-      color: #475569;
-      background-color: #f1f5f9;
-      padding: 0.5px 3px;
-      border-radius: 2px;
-      display: inline-block;
-      line-height: 1;
-    }
-
-    .even-row {
-      background-color: #f8fafc;
-    }
-
-    .search-match {
-      background-color: #fef08a !important; /* Yellow-200 highlight */
-      color: #000 !important;
-      font-weight: bold;
-    }
-
-    /* Button effects */
-    .btn-action {
-      transition: all 0.2s ease;
-    }
-    .btn-action:hover {
-      transform: translateY(-1px);
     }
   </style>
 </head>
-<body class="bg-slate-100 min-h-screen text-slate-900 font-sans">
+<body class="bg-slate-900 min-h-screen text-slate-100 font-sans antialiased">
 
-  <!-- Control Toolbar (Hidden in Print) -->
-  <header class="no-print bg-slate-900 text-white shadow-md py-2.5 px-4 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
-      <div class="flex items-center space-x-3">
-        <i class="fa-solid fa-clipboard-user text-xl text-emerald-400"></i>
-        <div>
-          <h1 class="font-bold text-base leading-tight">Attendance Sheet Generator</h1>
-          <p class="text-[11px] text-slate-300">Zoom Total = Checkmarks + Extra Attendees • In-Person is manual</p>
-        </div>
-      </div>
+  <!-- ========================================================= -->
+  <!-- MOBILE / SCREEN INTERFACE (Optimized for Mobile Viewing)   -->
+  <!-- ========================================================= -->
+  <div class="mobile-ui pb-28">
 
-      <!-- Quick Finder / Search Bar -->
-      <div class="relative flex-1 max-w-xs mx-2">
-        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-400"></i>
-        <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="Find name on sheet..." 
-          class="w-full bg-slate-800 border border-slate-700 text-white text-xs rounded-full pl-8 pr-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-400 placeholder-slate-400">
-      </div>
-
-      <div class="flex flex-wrap items-center gap-2">
-        <button onclick="toggleLegibilityMode()" id="toggle-size-btn" class="btn-action bg-slate-700 hover:bg-slate-600 text-slate-200 px-2.5 py-1.5 rounded text-xs font-semibold flex items-center gap-1.5 shadow" title="Toggle larger text for mobile viewing">
-          <i class="fa-solid fa-text-height text-emerald-400"></i> Size: Normal
-        </button>
-        <button onclick="loadSampleData()" class="btn-action bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded text-xs font-semibold flex items-center gap-1.5 shadow">
-          <i class="fa-solid fa-file-signature"></i> Load Sample
-        </button>
-        <button onclick="clearAllChecks()" class="btn-action bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded text-xs font-semibold flex items-center gap-1.5 shadow">
-          <i class="fa-solid fa-rotate-left"></i> Clear All
-        </button>
-        <button onclick="openExtraModal()" class="btn-action bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs font-semibold flex items-center gap-1.5 shadow">
-          <i class="fa-solid fa-user-plus"></i> Add Extra Person
-        </button>
-        <button onclick="window.print()" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 shadow-lg">
-          <i class="fa-solid fa-print"></i> Print Sheet
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Sheet Container -->
-  <main class="py-4 px-2 sm:px-4 flex justify-center">
-    <div id="sheet-card" class="sheet-container bg-white shadow-xl border border-slate-300 p-3.5 rounded-sm w-full max-w-[1040px]">
-      
-      <!-- Top Row: Groups 1, 2, 3 -->
-      <div class="grid grid-cols-3 gap-2.5 mb-2.5">
-        <!-- Group 1 -->
-        <div id="group-container-1"></div>
-        <!-- Group 2 -->
-        <div id="group-container-2"></div>
-        <!-- Group 3 -->
-        <div id="group-container-3"></div>
-      </div>
-
-      <!-- Bottom Row: Groups 4, 5, 6 + Extra Area & Summary -->
-      <div class="grid grid-cols-12 gap-2.5">
-        <!-- Group 4 (Cols 1..4) -->
-        <div class="col-span-4" id="group-container-4"></div>
-
-        <!-- Group 5 (Cols 5..8) -->
-        <div class="col-span-4" id="group-container-5"></div>
-
-        <!-- Group 6 + Side Extra Section (Cols 9..12) -->
-        <div class="col-span-4 flex flex-col justify-between">
-          <div id="group-container-6"></div>
-
-          <!-- Extra Attendees & Summary Section -->
-          <div class="flex gap-2 mt-1.5 items-end">
-            
-            <!-- Extra People handwritten/typed area -->
-            <div class="flex-1 border border-slate-400 p-1 bg-slate-50/50 rounded-sm min-h-[140px]">
-              <div class="flex justify-between items-center mb-0.5 px-0.5 no-print">
-                <span class="text-[9px] font-bold text-slate-700 uppercase tracking-wider">Extra Attendees (Zoom)</span>
-                <button onclick="openExtraModal()" class="text-[9px] bg-blue-600 hover:bg-blue-700 text-white font-bold px-1.5 py-0.5 rounded shadow-sm">+ Add</button>
-              </div>
-
-              <div id="extra-attendees-list" class="space-y-0.5">
-                <!-- Dynamic or Ruled lines -->
-              </div>
+    <!-- Sticky Header Summary & Tools -->
+    <header class="bg-slate-800/95 backdrop-blur-md border-b border-slate-700 sticky top-0 z-40 px-3 py-2.5 shadow-lg">
+      <div class="max-w-md mx-auto space-y-2.5">
+        
+        <!-- Top Title & Action Buttons -->
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-clipboard-user"></i>
             </div>
-
-            <!-- Bottom Right Summary Box -->
-            <div class="w-40 border-2 border-black p-1.5 bg-white shrink-0 shadow-sm">
-              <div class="flex justify-between items-center border-b border-black pb-0.5 mb-0.5">
-                <span class="font-bold text-xs text-slate-800">Date:</span>
-                <input type="text" id="date-input" value="" placeholder="MM-DD-YY" class="w-20 text-right font-bold text-xs outline-none bg-transparent">
-              </div>
-              <div class="flex justify-between items-center border-b border-black pb-0.5 mb-0.5">
-                <span class="font-bold text-xs text-slate-800">Zoom Total:</span>
-                <input type="number" id="zoom-total" value="0" readonly class="w-14 text-right font-bold text-xs outline-none bg-transparent cursor-default text-emerald-700">
-              </div>
-              <div class="flex justify-between items-center border-b border-black pb-0.5 mb-0.5">
-                <span class="font-bold text-xs text-slate-800">In-Person:</span>
-                <input type="number" id="in-person-total" value="0" placeholder="0" class="w-14 text-right font-bold text-xs outline-none bg-transparent focus:bg-amber-50 rounded" oninput="calculateTotals()">
-              </div>
-              <div class="flex justify-between items-center pt-0.5 font-extrabold text-xs sm:text-sm text-slate-900">
-                <span>Total:</span>
-                <input type="number" id="grand-total" value="0" readonly class="w-16 text-right font-extrabold text-xs sm:text-sm outline-none bg-transparent cursor-default">
-              </div>
+            <div>
+              <h1 class="font-bold text-sm text-white leading-none">Attendance Tracker</h1>
+              <p class="text-[10px] text-slate-400 mt-0.5">Alphabetical Zoom Checklist</p>
             </div>
-
           </div>
 
+          <div class="flex items-center gap-1.5">
+            <button onclick="loadSampleData()" title="Load Sample Data" class="bg-amber-600/30 hover:bg-amber-600/50 text-amber-300 border border-amber-500/40 text-xs px-2 py-1.5 rounded-lg font-medium flex items-center gap-1">
+              <i class="fa-solid fa-file-signature text-xs"></i> <span class="hidden sm:inline">Sample</span>
+            </button>
+            <button onclick="clearAllChecks()" title="Reset All" class="bg-rose-600/30 hover:bg-rose-600/50 text-rose-300 border border-rose-500/40 text-xs px-2 py-1.5 rounded-lg font-medium flex items-center gap-1">
+              <i class="fa-solid fa-rotate-left text-xs"></i>
+            </button>
+            <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-1.5 rounded-lg font-bold flex items-center gap-1 shadow-md">
+              <i class="fa-solid fa-print"></i> Print
+            </button>
+          </div>
         </div>
+
+        <!-- Attendance Stats Counters Bar -->
+        <div class="grid grid-cols-3 gap-2 bg-slate-900/80 p-2 rounded-xl border border-slate-700/60 text-center">
+          <div class="p-1">
+            <span class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Zoom Total</span>
+            <span id="mobile-zoom-display" class="text-base font-extrabold text-emerald-400">0</span>
+          </div>
+          <div class="p-1 border-x border-slate-700/80">
+            <span class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider">In-Person</span>
+            <input type="number" id="mobile-in-person-input" value="0" oninput="handleInPersonInput(this.value)" class="w-full text-center text-base font-extrabold text-amber-300 bg-transparent outline-none focus:bg-slate-800 rounded">
+          </div>
+          <div class="p-1">
+            <span class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Grand Total</span>
+            <span id="mobile-grand-display" class="text-base font-extrabold text-white">0</span>
+          </div>
+        </div>
+
+        <!-- Search Bar & Filters -->
+        <div class="space-y-2">
+          <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+            <input type="text" id="mobile-search" oninput="renderMobileList()" placeholder="Search name or group..." class="w-full bg-slate-900 border border-slate-700 text-white text-xs rounded-lg pl-8 pr-8 py-2 focus:outline-none focus:border-emerald-500 placeholder-slate-500">
+            <button onclick="clearSearch()" id="clear-search-btn" class="hidden absolute right-2.5 top-2 text-slate-400 hover:text-white text-xs">
+              <i class="fa-solid fa-circle-xmark"></i>
+            </button>
+          </div>
+
+          <div class="flex items-center justify-between text-xs">
+            <!-- Filter Pills -->
+            <div class="flex items-center gap-1 bg-slate-900 p-0.5 rounded-lg border border-slate-800">
+              <button onclick="setFilter('all')" id="filter-all" class="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-600 text-white">All</button>
+              <button onclick="setFilter('checked')" id="filter-checked" class="px-2.5 py-1 rounded-md text-[11px] font-semibold text-slate-400 hover:text-white">Zoomed (<span id="checked-badge-count">0</span>)</button>
+              <button onclick="setFilter('unchecked')" id="filter-unchecked" class="px-2.5 py-1 rounded-md text-[11px] font-semibold text-slate-400 hover:text-white">Unchecked</button>
+            </div>
+
+            <!-- Sort Direction Toggle -->
+            <button onclick="toggleSort()" id="sort-toggle-btn" class="text-slate-400 hover:text-white text-[11px] font-medium flex items-center gap-1 bg-slate-800 px-2 py-1 rounded-md border border-slate-700">
+              <i class="fa-solid fa-arrow-down-a-z text-emerald-400"></i> <span id="sort-label">First Name</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- Main Content List -->
+    <main class="max-w-md mx-auto px-3 mt-3 space-y-4">
+
+      <!-- Date Banner -->
+      <div class="flex justify-between items-center bg-slate-800/50 border border-slate-700/50 rounded-xl px-3 py-2 text-xs">
+        <span class="text-slate-400 font-medium"><i class="fa-regular fa-calendar-check mr-1 text-emerald-400"></i> Meeting Date:</span>
+        <input type="text" id="mobile-date" onchange="syncDate(this.value)" class="bg-transparent text-right font-bold text-white outline-none w-24">
       </div>
 
-    </div>
-  </main>
+      <!-- Extra Attendees Section (Zoom) -->
+      <section class="bg-slate-800/80 border border-slate-700 rounded-xl p-3 shadow-md">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-1.5">
+            <i class="fa-solid fa-users text-blue-400 text-xs"></i>
+            <h2 class="text-xs font-bold text-white uppercase tracking-wider">Extra Zoom Attendees</h2>
+          </div>
+          <button onclick="openExtraModal()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-2.5 py-1 rounded-lg flex items-center gap-1 shadow">
+            <i class="fa-solid fa-plus text-[10px]"></i> Add Person
+          </button>
+        </div>
 
-  <!-- Custom HTML Modal for Adding Extra Person -->
-  <div id="extra-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden no-print">
-    <div class="bg-white rounded-lg shadow-2xl p-5 w-full max-w-sm mx-4 border border-slate-200">
-      <div class="flex justify-between items-center pb-3 border-b border-slate-200 mb-4">
-        <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
-          <i class="fa-solid fa-user-plus text-blue-600"></i> Add Extra Zoom Person
+        <div id="mobile-extra-list" class="space-y-1.5">
+          <!-- Extra Attendees dynamically inserted here -->
+        </div>
+      </section>
+
+      <!-- Alphabetical Members List -->
+      <section>
+        <div class="flex justify-between items-center px-1 mb-2">
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Congregation Members</span>
+          <span id="list-count-indicator" class="text-[11px] text-slate-500 font-medium">Showing 0 names</span>
+        </div>
+
+        <div id="mobile-members-list" class="space-y-1.5">
+          <!-- Member rows rendered dynamically -->
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- Custom In-App Modal for Adding Extra Person -->
+  <div id="extra-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden no-print p-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-5 w-full max-w-sm text-slate-100">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-700 mb-4">
+        <h3 class="font-bold text-white text-base flex items-center gap-2">
+          <i class="fa-solid fa-user-plus text-blue-400"></i> Add Extra Zoom Person
         </h3>
-        <button onclick="closeExtraModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+        <button onclick="closeExtraModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
 
       <div class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Attendee / Family Name</label>
-          <input type="text" id="modal-name-input" placeholder="e.g. K. SINGLETARY or NIETO" class="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase font-semibold">
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Attendee / Household Name</label>
+          <input type="text" id="modal-name-input" placeholder="e.g., K. SINGLETARY or NIETO" class="w-full bg-slate-900 border border-slate-700 text-white rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 uppercase font-semibold">
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Number of People on Connection</label>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Number of People on Connection</label>
           <div class="flex items-center gap-3">
-            <button type="button" onclick="adjustModalCount(-1)" class="w-10 h-10 rounded bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-lg flex items-center justify-center">-</button>
-            <span id="modal-count-display" class="text-xl font-bold text-blue-700 w-12 text-center">1</span>
-            <button type="button" onclick="adjustModalCount(1)" class="w-10 h-10 rounded bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-lg flex items-center justify-center">+</button>
-            <span class="text-xs text-slate-500">person(s)</span>
+            <button type="button" onclick="adjustModalCount(-1)" class="w-11 h-11 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold text-xl flex items-center justify-center shadow">-</button>
+            <span id="modal-count-display" class="text-2xl font-black text-blue-400 w-12 text-center">1</span>
+            <button type="button" onclick="adjustModalCount(1)" class="w-11 h-11 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold text-xl flex items-center justify-center shadow">+</button>
+            <span class="text-xs text-slate-400">person(s)</span>
           </div>
         </div>
       </div>
 
-      <div class="mt-6 flex justify-end gap-2 pt-3 border-t border-slate-100">
-        <button onclick="closeExtraModal()" class="px-4 py-2 rounded text-xs font-semibold text-slate-600 hover:bg-slate-100">Cancel</button>
-        <button onclick="submitExtraModal()" class="px-4 py-2 rounded text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white shadow">Add to Zoom Total</button>
+      <div class="mt-6 flex justify-end gap-2 pt-3 border-t border-slate-700/60">
+        <button onclick="closeExtraModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-700">Cancel</button>
+        <button onclick="submitExtraModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-lg">Add to Zoom</button>
       </div>
     </div>
   </div>
 
+
+  <!-- ========================================================= -->
+  <!-- PRINT-ONLY PAPER SHEET TEMPLATE (Exact 6-Group Layout)    -->
+  <!-- ========================================================= -->
+  <div class="print-only-sheet bg-white text-black p-2 max-w-[1020px] mx-auto">
+    
+    <!-- Top Row: Groups 1, 2, 3 -->
+    <div class="grid grid-cols-3 gap-2 mb-2">
+      <div id="print-group-1"></div>
+      <div id="print-group-2"></div>
+      <div id="print-group-3"></div>
+    </div>
+
+    <!-- Bottom Row: Groups 4, 5, 6 + Side Extra Section -->
+    <div class="grid grid-cols-12 gap-2">
+      <div class="col-span-4" id="print-group-4"></div>
+      <div class="col-span-4" id="print-group-5"></div>
+
+      <div class="col-span-4 flex flex-col justify-between">
+        <div id="print-group-6"></div>
+
+        <!-- Extra Attendees & Summary Block -->
+        <div class="flex gap-2 mt-1.5 items-end">
+          
+          <!-- Extra Attendees handwritten/typed lines -->
+          <div class="flex-1 border border-gray-500 p-1 bg-gray-50/30 rounded-sm">
+            <div id="print-extra-list" class="space-y-0.5">
+              <!-- Dynamically populated rows for print -->
+            </div>
+          </div>
+
+          <!-- Bottom Right Summary Box -->
+          <div class="w-40 border-2 border-black p-1 bg-white shrink-0">
+            <div class="flex justify-between items-center border-b border-black pb-0.5 mb-0.5">
+              <span class="font-bold text-xs">Date:</span>
+              <input type="text" id="print-date" value="" class="w-20 text-right font-bold text-xs outline-none bg-transparent">
+            </div>
+            <div class="flex justify-between items-center border-b border-black pb-0.5 mb-0.5">
+              <span class="font-bold text-xs">Zoom Total:</span>
+              <input type="number" id="print-zoom-total" value="0" readonly class="w-14 text-right font-bold text-xs outline-none bg-transparent">
+            </div>
+            <div class="flex justify-between items-center border-b border-black pb-0.5 mb-0.5">
+              <span class="font-bold text-xs">In-Person:</span>
+              <input type="number" id="print-in-person" value="0" class="w-14 text-right font-bold text-xs outline-none bg-transparent">
+            </div>
+            <div class="flex justify-between items-center pt-0.5 font-extrabold text-xs sm:text-sm">
+              <span>Total:</span>
+              <input type="number" id="print-grand-total" value="0" readonly class="w-16 text-right font-extrabold text-xs sm:text-sm outline-none bg-transparent">
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ========================================================= -->
+  <!-- APPLICATION LOGIC                                         -->
+  <!-- ========================================================= -->
   <script>
-    // Master Group Data
+    // Master Congregation Data Structure
     const groupData = [
       {
         id: 1,
@@ -525,12 +522,36 @@
       }
     ];
 
-    // Attendance & View State
+    // State
     let attendanceState = {};
     let extraAttendees = [];
     let manualGroupTotals = {};
+    let inPersonCount = 0;
+    let sortByField = 'firstName'; // 'firstName' or 'lastName'
+    let currentFilter = 'all'; // 'all', 'checked', 'unchecked'
     let modalCountVal = 1;
-    let searchQuery = '';
+
+    // Derived Flat Member List
+    let allMembersList = [];
+
+    function buildFlatList() {
+      allMembersList = [];
+      groupData.forEach(group => {
+        group.members.forEach((m, idx) => {
+          allMembersList.push({
+            key: `g${group.id}_m${idx}`,
+            groupId: group.id,
+            memberIdx: idx,
+            firstName: m.firstName,
+            lastName: m.lastName,
+            role1: m.role1,
+            role2: m.role2,
+            faded: m.faded,
+            groupTitle: group.title
+          });
+        });
+      });
+    }
 
     function getFormattedCurrentDate() {
       const today = new Date();
@@ -541,158 +562,196 @@
     }
 
     function init() {
-      document.getElementById('date-input').value = getFormattedCurrentDate();
-      renderSheet();
+      buildFlatList();
+      const initialDate = getFormattedCurrentDate();
+      document.getElementById('mobile-date').value = initialDate;
+      document.getElementById('print-date').value = initialDate;
+      
+      renderMobileList();
+      renderPrintSheet();
       calculateTotals();
     }
 
-    function toggleLegibilityMode() {
-      const card = document.getElementById('sheet-card');
-      const btn = document.getElementById('toggle-size-btn');
-      if (card.classList.contains('comfortable-mode')) {
-        card.classList.remove('comfortable-mode');
-        btn.innerHTML = `<i class="fa-solid fa-text-height text-emerald-400"></i> Size: Normal`;
+    function syncDate(val) {
+      document.getElementById('print-date').value = val;
+    }
+
+    function toggleCheckKey(key) {
+      attendanceState[key] = !attendanceState[key];
+      
+      // Reset manual group override if toggling
+      const groupId = key.split('_')[0].replace('g', '');
+      delete manualGroupTotals[groupId];
+
+      renderMobileList();
+      renderPrintSheet();
+      calculateTotals();
+    }
+
+    function setFilter(filterType) {
+      currentFilter = filterType;
+
+      document.getElementById('filter-all').className = filterType === 'all' 
+        ? "px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-600 text-white" 
+        : "px-2.5 py-1 rounded-md text-[11px] font-semibold text-slate-400 hover:text-white";
+
+      document.getElementById('filter-checked').className = filterType === 'checked' 
+        ? "px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-600 text-white" 
+        : "px-2.5 py-1 rounded-md text-[11px] font-semibold text-slate-400 hover:text-white";
+
+      document.getElementById('filter-unchecked').className = filterType === 'unchecked' 
+        ? "px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-600 text-white" 
+        : "px-2.5 py-1 rounded-md text-[11px] font-semibold text-slate-400 hover:text-white";
+
+      renderMobileList();
+    }
+
+    function toggleSort() {
+      if (sortByField === 'firstName') {
+        sortByField = 'lastName';
+        document.getElementById('sort-label').innerText = 'Last Name';
       } else {
-        card.classList.add('comfortable-mode');
-        btn.innerHTML = `<i class="fa-solid fa-text-height text-amber-400"></i> Size: Large`;
+        sortByField = 'firstName';
+        document.getElementById('sort-label').innerText = 'First Name';
       }
+      renderMobileList();
     }
 
-    function handleSearch(query) {
-      searchQuery = query.toLowerCase().trim();
-      renderSheet();
+    function clearSearch() {
+      document.getElementById('mobile-search').value = '';
+      renderMobileList();
     }
 
-    function renderSheet() {
-      groupData.forEach(group => {
-        const container = document.getElementById(`group-container-${group.id}`);
-        if (!container) return;
+    function renderMobileList() {
+      const searchVal = document.getElementById('mobile-search').value.toLowerCase().trim();
+      const clearBtn = document.getElementById('clear-search-btn');
+      
+      if (clearBtn) {
+        if (searchVal) clearBtn.classList.remove('hidden');
+        else clearBtn.classList.add('hidden');
+      }
 
-        let rowsHtml = '';
-        let groupCheckedCount = 0;
+      // Sort
+      let sorted = [...allMembersList].sort((a, b) => {
+        if (sortByField === 'firstName') {
+          return a.firstName.localeCompare(b.firstName) || a.lastName.localeCompare(b.lastName);
+        } else {
+          return a.lastName.localeCompare(b.lastName) || a.firstName.localeCompare(a.firstName);
+        }
+      });
 
-        group.members.forEach((m, idx) => {
-          const key = `g${group.id}_m${idx}`;
-          const isChecked = !!attendanceState[key];
-          if (isChecked) groupCheckedCount++;
+      // Filter
+      let checkedCount = 0;
+      let filtered = sorted.filter(m => {
+        const isChecked = !!attendanceState[m.key];
+        if (isChecked) checkedCount++;
 
-          const fullName = `${m.firstName} ${m.lastName}`.toLowerCase();
-          const isMatched = searchQuery !== '' && fullName.includes(searchQuery);
+        // Filter Type
+        if (currentFilter === 'checked' && !isChecked) return false;
+        if (currentFilter === 'unchecked' && isChecked) return false;
 
-          const role1Html = m.role1 ? `<span class="role-badge">${m.role1}</span>` : '';
-          const role2Html = m.role2 ? `<span class="role-badge">${m.role2}</span>` : '';
-
-          const rowShading = isChecked 
-            ? 'bg-emerald-100/80 hover:bg-emerald-200/80' 
-            : (idx % 2 === 1 ? 'even-row hover:bg-slate-100' : 'hover:bg-slate-100');
-
-          rowsHtml += `
-            <tr class="${m.faded ? 'faded-text' : ''} ${rowShading} ${isMatched ? 'search-match' : ''} transition-colors cursor-pointer" onclick="toggleCheck(${group.id}, ${idx})">
-              <td class="text-left font-semibold overflow-hidden whitespace-nowrap px-1">${m.firstName}</td>
-              <td class="text-left overflow-hidden whitespace-nowrap px-1">${m.lastName}</td>
-              <td class="text-center overflow-hidden whitespace-nowrap px-0.5">${role1Html}</td>
-              <td class="text-center overflow-hidden whitespace-nowrap px-0.5">${role2Html}</td>
-              <td class="check-cell">
-                ${isChecked ? '<span class="check-mark">✓</span>' : ''}
-              </td>
-            </tr>
-          `;
-        });
-
-        // Fill empty rows to maintain exact sheet proportions
-        const emptyRowsNeeded = Math.max(0, group.targetRows - group.members.length);
-        for (let i = 0; i < emptyRowsNeeded; i++) {
-          const emptyRowShading = (group.members.length + i) % 2 === 1 ? 'even-row' : '';
-          rowsHtml += `
-            <tr class="${emptyRowShading}">
-              <td>&nbsp;</td>
-              <td>&nbsp;</td>
-              <td>&nbsp;</td>
-              <td>&nbsp;</td>
-              <td class="check-cell">&nbsp;</td>
-            </tr>
-          `;
+        // Search Query
+        if (searchVal) {
+          const matchName = `${m.firstName} ${m.lastName}`.toLowerCase().includes(searchVal);
+          const matchGroup = m.groupTitle.toLowerCase().includes(searchVal);
+          return matchName || matchGroup;
         }
 
-        const displayTotal = manualGroupTotals[group.id] !== undefined ? manualGroupTotals[group.id] : (groupCheckedCount || '');
+        return true;
+      });
 
+      // Update badges
+      document.getElementById('checked-badge-count').innerText = checkedCount;
+      document.getElementById('list-count-indicator').innerText = `Showing ${filtered.length} of ${allMembersList.length}`;
+
+      const container = document.getElementById('mobile-members-list');
+      if (!container) return;
+
+      if (filtered.length === 0) {
         container.innerHTML = `
-          <table class="group-table shadow-sm">
-            <thead>
-              <tr>
-                <th colspan="5" class="group-header-1">${group.title}</th>
-              </tr>
-              <tr>
-                <th colspan="5" class="group-header-2">${group.subtitle}</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${rowsHtml}
-            </tbody>
-            <tfoot>
-              <tr class="font-bold bg-slate-100/90">
-                <td colspan="4" class="text-left px-1.5 border border-slate-400 text-slate-800">Group Total:</td>
-                <td class="text-center border border-slate-400">
-                  <input type="text" id="group-total-${group.id}" value="${displayTotal}" onchange="setManualTotal(${group.id}, this.value)" class="w-full text-center font-extrabold outline-none bg-transparent">
-                </td>
-              </tr>
-            </tfoot>
-          </table>
+          <div class="text-center py-8 bg-slate-800/40 rounded-xl border border-slate-700/50">
+            <i class="fa-solid fa-user-slash text-2xl text-slate-500 mb-2"></i>
+            <p class="text-xs text-slate-400 font-medium">No members found matching your query.</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      filtered.forEach(m => {
+        const isChecked = !!attendanceState[m.key];
+        
+        const cardBg = isChecked 
+          ? 'bg-emerald-950/40 border-emerald-500/60 text-white' 
+          : (m.faded ? 'bg-slate-800/30 border-slate-700/40 text-slate-400' : 'bg-slate-800/80 border-slate-700 text-slate-200');
+
+        const nameDisplay = sortByField === 'lastName' 
+          ? `<span class="font-extrabold text-white">${m.lastName}</span>, ${m.firstName}`
+          : `<span class="font-extrabold text-white">${m.firstName}</span> ${m.lastName}`;
+
+        const roleBadges = (m.role1 || m.role2) 
+          ? `<span class="text-[9px] font-bold bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded ml-1">${[m.role1, m.role2].filter(Boolean).join(' ')}</span>`
+          : '';
+
+        html += `
+          <div onclick="toggleCheckKey('${m.key}')" class="touch-row p-3 rounded-xl border ${cardBg} flex items-center justify-between shadow-sm cursor-pointer transition-all active:scale-[0.99]">
+            <div class="space-y-0.5 pr-2">
+              <div class="text-sm font-medium flex items-center gap-1">
+                ${nameDisplay}
+                ${roleBadges}
+              </div>
+              <div class="text-[10px] text-slate-400 flex items-center gap-1">
+                <i class="fa-solid fa-layer-group text-[9px] text-slate-500"></i> ${m.groupTitle}
+              </div>
+            </div>
+
+            <div class="shrink-0">
+              <div class="w-7 h-7 rounded-lg border flex items-center justify-center transition-colors ${isChecked ? 'bg-emerald-500 border-emerald-400 text-slate-950 font-black' : 'border-slate-600 bg-slate-900/50 text-transparent'}">
+                <i class="fa-solid fa-check text-sm"></i>
+              </div>
+            </div>
+          </div>
         `;
       });
 
-      renderExtraAttendees();
+      container.innerHTML = html;
+      renderMobileExtraList();
     }
 
-    function toggleCheck(groupId, memberIdx) {
-      const key = `g${groupId}_m${memberIdx}`;
-      attendanceState[key] = !attendanceState[key];
-      delete manualGroupTotals[groupId];
-      renderSheet();
-      calculateTotals();
-    }
-
-    function renderExtraAttendees() {
-      const container = document.getElementById('extra-attendees-list');
+    function renderMobileExtraList() {
+      const container = document.getElementById('mobile-extra-list');
       if (!container) return;
 
-      const maxLines = 7;
-
       if (extraAttendees.length === 0) {
-        let emptyLines = '';
-        for (let i = 0; i < maxLines; i++) {
-          emptyLines += `<div class="ruled-line"></div>`;
-        }
-        container.innerHTML = emptyLines;
+        container.innerHTML = `
+          <p class="text-[11px] text-slate-500 italic py-1 text-center">No extra Zoom attendees added yet.</p>
+        `;
         return;
       }
 
       let html = '';
       extraAttendees.forEach((person, idx) => {
         html += `
-          <div class="flex items-center justify-between text-xs py-0.5 border-b border-slate-300">
-            <span class="font-semibold uppercase tracking-wide text-[10px] sm:text-xs text-slate-800">
-              ${person.name} ${person.count > 1 ? `<span class="font-extrabold text-blue-800 ml-1">- ${person.count}</span>` : ''}
-            </span>
-            <div class="flex items-center gap-1 no-print">
-              <button onclick="stepExtraCount(${idx}, -1)" title="Decrease count" class="w-4 h-4 rounded bg-slate-200 hover:bg-slate-300 text-slate-700 text-[10px] font-bold flex items-center justify-center">-</button>
-              <span class="text-[10px] font-bold text-slate-700 px-0.5">${person.count}</span>
-              <button onclick="stepExtraCount(${idx}, 1)" title="Increase count" class="w-4 h-4 rounded bg-slate-200 hover:bg-slate-300 text-slate-700 text-[10px] font-bold flex items-center justify-center">+</button>
-              <button onclick="removeExtraAttendee(${idx})" title="Remove attendee" class="text-rose-500 hover:text-rose-700 text-[10px] ml-1"><i class="fa-solid fa-trash"></i></button>
+          <div class="flex items-center justify-between bg-slate-900/90 border border-slate-700/80 rounded-lg p-2 text-xs">
+            <div class="font-bold text-slate-100 flex items-center gap-1">
+              <span>${person.name}</span>
+              ${person.count > 1 ? `<span class="bg-blue-900/60 text-blue-300 border border-blue-500/40 text-[10px] px-1.5 py-0.2 rounded font-extrabold">+${person.count}</span>` : ''}
+            </div>
+
+            <div class="flex items-center gap-1">
+              <button onclick="stepExtraCount(${idx}, -1)" class="w-6 h-6 rounded-md bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs flex items-center justify-center">-</button>
+              <span class="w-5 text-center font-bold text-blue-400 text-xs">${person.count}</span>
+              <button onclick="stepExtraCount(${idx}, 1)" class="w-6 h-6 rounded-md bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs flex items-center justify-center">+</button>
+              <button onclick="removeExtraAttendee(${idx})" class="text-rose-400 hover:text-rose-300 ml-1 p-1"><i class="fa-solid fa-trash text-xs"></i></button>
             </div>
           </div>
         `;
       });
 
-      const fillCount = Math.max(0, maxLines - extraAttendees.length);
-      for (let i = 0; i < fillCount; i++) {
-        html += `<div class="ruled-line"></div>`;
-      }
-
       container.innerHTML = html;
     }
 
-    /* Modal Dialog Functions */
+    /* Modal Dialog Controls */
     function openExtraModal() {
       modalCountVal = 1;
       document.getElementById('modal-name-input').value = '';
@@ -723,30 +782,30 @@
       });
 
       closeExtraModal();
-      renderExtraAttendees();
+      renderMobileExtraList();
+      renderPrintSheet();
       calculateTotals();
     }
 
     function stepExtraCount(idx, delta) {
       if (extraAttendees[idx]) {
         extraAttendees[idx].count = Math.max(1, extraAttendees[idx].count + delta);
-        renderExtraAttendees();
+        renderMobileExtraList();
+        renderPrintSheet();
         calculateTotals();
       }
     }
 
     function removeExtraAttendee(idx) {
       extraAttendees.splice(idx, 1);
-      renderExtraAttendees();
+      renderMobileExtraList();
+      renderPrintSheet();
       calculateTotals();
     }
 
-    function setManualTotal(groupId, val) {
-      if (val === '') {
-        delete manualGroupTotals[groupId];
-      } else {
-        manualGroupTotals[groupId] = val;
-      }
+    function handleInPersonInput(val) {
+      inPersonCount = parseInt(val) || 0;
+      document.getElementById('print-in-person').value = inPersonCount;
       calculateTotals();
     }
 
@@ -763,14 +822,16 @@
 
         const effectiveTotal = manualGroupTotals[group.id] !== undefined ? (parseInt(manualGroupTotals[group.id]) || 0) : groupChecked;
         
-        const groupInput = document.getElementById(`group-total-${group.id}`);
-        if (groupInput && manualGroupTotals[group.id] === undefined) {
-          groupInput.value = groupChecked || '';
+        // Update input display for print template
+        const printGroupInput = document.getElementById(`print-group-total-${group.id}`);
+        if (printGroupInput && manualGroupTotals[group.id] === undefined) {
+          printGroupInput.value = groupChecked || '';
         }
 
         groupChecksTotal += effectiveTotal;
       });
 
+      // Extra Attendees total count
       let extraCountTotal = 0;
       extraAttendees.forEach(p => {
         extraCountTotal += (p.count || 1);
@@ -778,24 +839,149 @@
 
       // Zoom Total = Checkmarks + Extra Attendees
       const finalZoomTotal = groupChecksTotal + extraCountTotal;
-      document.getElementById('zoom-total').value = finalZoomTotal;
 
-      // In-person attendance is manually entered
-      const inPersonVal = parseInt(document.getElementById('in-person-total').value) || 0;
+      document.getElementById('mobile-zoom-display').innerText = finalZoomTotal;
+      document.getElementById('print-zoom-total').value = finalZoomTotal;
 
-      // Grand Total = Zoom Total + In-Person Total
-      document.getElementById('grand-total').value = finalZoomTotal + inPersonVal;
+      // In Person
+      const inPersonVal = parseInt(document.getElementById('mobile-in-person-input').value) || 0;
+      document.getElementById('print-in-person').value = inPersonVal;
+
+      // Grand Total
+      const grandTotal = finalZoomTotal + inPersonVal;
+      document.getElementById('mobile-grand-display').innerText = grandTotal;
+      document.getElementById('print-grand-total').value = grandTotal;
+    }
+
+    function setManualTotal(groupId, val) {
+      if (val === '') {
+        delete manualGroupTotals[groupId];
+      } else {
+        manualGroupTotals[groupId] = val;
+      }
+      calculateTotals();
+    }
+
+    /* Renders the Print-Only 6 Group Layout */
+    function renderPrintSheet() {
+      groupData.forEach(group => {
+        const container = document.getElementById(`print-group-${group.id}`);
+        if (!container) return;
+
+        let rowsHtml = '';
+        let groupCheckedCount = 0;
+
+        group.members.forEach((m, idx) => {
+          const key = `g${group.id}_m${idx}`;
+          const isChecked = !!attendanceState[key];
+          if (isChecked) groupCheckedCount++;
+
+          rowsHtml += `
+            <tr class="${m.faded ? 'faded-text' : ''}">
+              <td class="text-left font-medium overflow-hidden whitespace-nowrap">${m.firstName}</td>
+              <td class="text-left overflow-hidden whitespace-nowrap">${m.lastName}</td>
+              <td class="text-center text-[9px] overflow-hidden whitespace-nowrap">${m.role1 || ''}</td>
+              <td class="text-center text-[9px] overflow-hidden whitespace-nowrap">${m.role2 || ''}</td>
+              <td class="check-cell">
+                ${isChecked ? '<span class="check-mark">✓</span>' : ''}
+              </td>
+            </tr>
+          `;
+        });
+
+        // Fill empty rows to keep exact table size
+        const emptyRowsNeeded = Math.max(0, group.targetRows - group.members.length);
+        for (let i = 0; i < emptyRowsNeeded; i++) {
+          rowsHtml += `
+            <tr>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td class="check-cell">&nbsp;</td>
+            </tr>
+          `;
+        }
+
+        const displayTotal = manualGroupTotals[group.id] !== undefined ? manualGroupTotals[group.id] : (groupCheckedCount || '');
+
+        container.innerHTML = `
+          <table class="group-table">
+            <thead>
+              <tr>
+                <th colspan="5" class="group-header-1">${group.title}</th>
+              </tr>
+              <tr>
+                <th colspan="5" class="group-header-2">${group.subtitle}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+            <tfoot>
+              <tr class="font-bold bg-gray-50">
+                <td colspan="4" class="text-left px-1.5 border border-gray-700">Group Total:</td>
+                <td class="text-center border border-gray-700">
+                  <input type="text" id="print-group-total-${group.id}" value="${displayTotal}" onchange="setManualTotal(${group.id}, this.value)" class="w-full text-center font-bold outline-none bg-transparent">
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        `;
+      });
+
+      renderPrintExtraList();
+    }
+
+    function renderPrintExtraList() {
+      const container = document.getElementById('print-extra-list');
+      if (!container) return;
+
+      const maxLines = 7;
+
+      if (extraAttendees.length === 0) {
+        let emptyLines = '';
+        for (let i = 0; i < maxLines; i++) {
+          emptyLines += `<div class="ruled-line"></div>`;
+        }
+        container.innerHTML = emptyLines;
+        return;
+      }
+
+      let html = '';
+      extraAttendees.forEach(person => {
+        html += `
+          <div class="flex items-center justify-between text-xs py-0.5 border-b border-gray-400">
+            <span class="font-semibold uppercase tracking-wide text-[10px]">
+              ${person.name} ${person.count > 1 ? `<span class="font-extrabold ml-1">- ${person.count}</span>` : ''}
+            </span>
+          </div>
+        `;
+      });
+
+      const fillCount = Math.max(0, maxLines - extraAttendees.length);
+      for (let i = 0; i < fillCount; i++) {
+        html += `<div class="ruled-line"></div>`;
+      }
+
+      container.innerHTML = html;
     }
 
     function clearAllChecks() {
       attendanceState = {};
       extraAttendees = [];
       manualGroupTotals = {};
-      document.getElementById('search-input').value = '';
-      searchQuery = '';
-      document.getElementById('date-input').value = getFormattedCurrentDate();
-      document.getElementById('in-person-total').value = '0';
-      renderSheet();
+      inPersonCount = 0;
+      
+      document.getElementById('mobile-search').value = '';
+      document.getElementById('mobile-in-person-input').value = '0';
+      
+      const initialDate = getFormattedCurrentDate();
+      document.getElementById('mobile-date').value = initialDate;
+      document.getElementById('print-date').value = initialDate;
+
+      renderMobileList();
+      renderPrintSheet();
       calculateTotals();
     }
 
@@ -847,14 +1033,14 @@
         { name: "NIETO", count: 2 } // Nieto counts as 2 people
       ];
 
-      document.getElementById('date-input').value = getFormattedCurrentDate();
-      document.getElementById('in-person-total').value = '80';
+      document.getElementById('mobile-in-person-input').value = '80';
 
-      renderSheet();
+      renderMobileList();
+      renderPrintSheet();
       calculateTotals();
     }
 
-    // Initialize on load
+    // Run initialization on load
     window.onload = init;
   </script>
 </body>
