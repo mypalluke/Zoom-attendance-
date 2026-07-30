@@ -12,41 +12,82 @@
     @media print {
       @page {
         size: letter portrait;
-        margin: 0.2in;
+        margin: 0.15in;
       }
-      body {
+      
+      html, body {
+        width: 100% !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
         background-color: white !important;
         color: black !important;
-        font-size: 10px !important;
+        font-size: 9.5px !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+        overflow: hidden !important;
       }
+
       .no-print {
         display: none !important;
       }
+
+      main {
+        padding: 0 !important;
+        margin: 0 !important;
+        display: block !important;
+      }
+
       .sheet-container {
         box-shadow: none !important;
         border: none !important;
         padding: 0 !important;
-        margin: 0 !important;
+        margin: 0 auto !important;
         width: 100% !important;
         max-width: 100% !important;
+        transform-origin: top center;
+        page-break-inside: avoid !important;
+        page-break-after: avoid !important;
       }
+
+      .group-table th, .group-table td {
+        padding: 0px 2px !important;
+        font-size: 9px !important;
+        line-height: 1.1 !important;
+        height: 15.5px !important;
+      }
+
+      .group-header-1 {
+        font-size: 10px !important;
+        padding: 1.5px 3px !important;
+      }
+
+      .group-header-2 {
+        font-size: 9px !important;
+        padding: 1px 3px !important;
+      }
+
       input {
         border: none !important;
         background: transparent !important;
         box-shadow: none !important;
         outline: none !important;
       }
+
       .check-cell {
         background-color: transparent !important;
       }
+
       .bg-emerald-50 {
         background-color: transparent !important;
       }
+
+      .ruled-line {
+        height: 17px !important;
+      }
     }
 
-    /* Standard Table Styling */
+    /* Standard Table Styling for Screen */
     .group-table {
       border-collapse: collapse;
       width: 100%;
@@ -57,27 +98,27 @@
     .group-table th, .group-table td {
       border: 1px solid #333333;
       padding: 1px 3px;
-      font-size: 11px;
+      font-size: 10.5px;
       line-height: 1.15;
-      height: 19px;
+      height: 17.5px;
     }
 
     .group-header-1 {
       background-color: #4a4a4a !important;
       color: white !important;
       font-weight: bold;
-      font-size: 12px;
+      font-size: 11px;
       text-align: left;
-      padding: 3px 5px !important;
+      padding: 2px 4px !important;
     }
 
     .group-header-2 {
       background-color: #666666 !important;
       color: white !important;
       font-weight: bold;
-      font-size: 11px;
+      font-size: 10px;
       text-align: left;
-      padding: 2px 5px !important;
+      padding: 1.5px 4px !important;
     }
 
     .faded-text {
@@ -85,7 +126,7 @@
     }
 
     .check-cell {
-      width: 26px;
+      width: 24px;
       text-align: center;
       cursor: pointer;
       user-select: none;
@@ -93,16 +134,16 @@
 
     .check-mark {
       font-weight: bold;
-      font-size: 14px;
+      font-size: 13px;
       color: #000000;
     }
 
     .ruled-line {
       border-bottom: 1px solid #444;
-      height: 22px;
+      height: 20px;
     }
 
-    /* Print styling overrides */
+    /* Button effects */
     .btn-action {
       transition: all 0.2s ease;
     }
@@ -114,13 +155,13 @@
 <body class="bg-gray-100 min-h-screen text-gray-900 font-sans">
 
   <!-- Control Toolbar (Hidden in Print) -->
-  <header class="no-print bg-slate-800 text-white shadow-md py-3 px-4 sticky top-0 z-50">
+  <header class="no-print bg-slate-800 text-white shadow-md py-2.5 px-4 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
       <div class="flex items-center space-x-3">
         <i class="fa-solid fa-clipboard-user text-xl text-emerald-400"></i>
         <div>
-          <h1 class="font-bold text-lg leading-tight">Attendance Sheet Generator</h1>
-          <p class="text-xs text-gray-300">Checkmarks = Zoom Attendance • Manually enter In-Person total</p>
+          <h1 class="font-bold text-base leading-tight">Attendance Sheet Generator</h1>
+          <p class="text-[11px] text-gray-300">Zoom Total = Checkmarks + Extra Attendees (with custom counts)</p>
         </div>
       </div>
 
@@ -142,11 +183,11 @@
   </header>
 
   <!-- Main Sheet Container -->
-  <main class="py-6 px-2 sm:px-4 flex justify-center">
-    <div class="sheet-container bg-white shadow-xl border border-gray-300 p-4 rounded-sm w-full max-w-[1020px]">
+  <main class="py-4 px-2 sm:px-4 flex justify-center">
+    <div class="sheet-container bg-white shadow-xl border border-gray-300 p-3 rounded-sm w-full max-w-[1020px]">
       
       <!-- Top Row: Groups 1, 2, 3 -->
-      <div class="grid grid-cols-3 gap-2 mb-3">
+      <div class="grid grid-cols-3 gap-2 mb-2">
         <!-- Group 1 -->
         <div id="group-container-1"></div>
         <!-- Group 2 -->
@@ -168,37 +209,37 @@
           <div id="group-container-6"></div>
 
           <!-- Extra Attendees & Summary Section -->
-          <div class="flex gap-2 mt-2 items-end">
+          <div class="flex gap-2 mt-1.5 items-end">
             
             <!-- Extra People handwritten/typed area -->
-            <div class="flex-1 border border-gray-500 p-1.5 bg-gray-50/50 rounded-sm">
-              <div class="flex justify-between items-center mb-1 no-print">
-                <span class="text-[10px] font-bold text-gray-700 uppercase tracking-wider">Extra Attendees</span>
-                <button onclick="addExtraAttendeePrompt()" class="text-[10px] text-blue-600 font-bold hover:underline">+ Add</button>
+            <div class="flex-1 border border-gray-500 p-1 bg-gray-50/50 rounded-sm min-h-[140px]">
+              <div class="flex justify-between items-center mb-0.5 no-print">
+                <span class="text-[9px] font-bold text-gray-700 uppercase tracking-wider">Extra Attendees (Zoom)</span>
+                <button onclick="addExtraAttendeePrompt()" class="text-[9px] text-blue-600 font-bold hover:underline">+ Add</button>
               </div>
 
-              <div id="extra-attendees-list" class="space-y-1">
+              <div id="extra-attendees-list" class="space-y-0.5">
                 <!-- Dynamic or Ruled lines -->
               </div>
             </div>
 
             <!-- Bottom Right Summary Box -->
-            <div class="w-44 border-2 border-black p-1.5 bg-white shrink-0">
-              <div class="flex justify-between items-center border-b border-black pb-1 mb-1">
+            <div class="w-40 border-2 border-black p-1 bg-white shrink-0">
+              <div class="flex justify-between items-center border-b border-black pb-0.5 mb-0.5">
                 <span class="font-bold text-xs">Date:</span>
                 <input type="text" id="date-input" value="" placeholder="MM-DD-YY" class="w-20 text-right font-bold text-xs outline-none bg-transparent">
               </div>
-              <div class="flex justify-between items-center border-b border-black pb-1 mb-1">
+              <div class="flex justify-between items-center border-b border-black pb-0.5 mb-0.5">
                 <span class="font-bold text-xs">Zoom Total:</span>
-                <input type="number" id="zoom-total" value="0" readonly class="w-14 text-right font-bold text-xs outline-none bg-transparent cursor-default">
+                <input type="number" id="zoom-total" value="0" readonly class="w-14 text-right font-bold text-xs outline-none bg-transparent cursor-default text-emerald-700">
               </div>
-              <div class="flex justify-between items-center border-b border-black pb-1 mb-1">
+              <div class="flex justify-between items-center border-b border-black pb-0.5 mb-0.5">
                 <span class="font-bold text-xs">In-Person:</span>
                 <input type="number" id="in-person-total" value="0" placeholder="0" class="w-14 text-right font-bold text-xs outline-none bg-transparent focus:bg-amber-50 rounded" oninput="calculateTotals()">
               </div>
-              <div class="flex justify-between items-center pt-0.5 font-extrabold text-sm">
+              <div class="flex justify-between items-center pt-0.5 font-extrabold text-xs sm:text-sm">
                 <span>Total:</span>
-                <input type="number" id="grand-total" value="0" readonly class="w-16 text-right font-extrabold text-sm outline-none bg-transparent cursor-default">
+                <input type="number" id="grand-total" value="0" readonly class="w-16 text-right font-extrabold text-xs sm:text-sm outline-none bg-transparent cursor-default">
               </div>
             </div>
 
@@ -434,8 +475,8 @@
             <tr class="${m.faded ? 'faded-text' : ''} ${isChecked ? 'bg-emerald-50' : ''} transition-colors cursor-pointer" onclick="toggleCheck(${group.id}, ${idx})">
               <td class="text-left font-medium overflow-hidden whitespace-nowrap">${m.firstName}</td>
               <td class="text-left overflow-hidden whitespace-nowrap">${m.lastName}</td>
-              <td class="text-center text-[10px] overflow-hidden whitespace-nowrap">${m.role1 || ''}</td>
-              <td class="text-center text-[10px] overflow-hidden whitespace-nowrap">${m.role2 || ''}</td>
+              <td class="text-center text-[9.5px] overflow-hidden whitespace-nowrap">${m.role1 || ''}</td>
+              <td class="text-center text-[9.5px] overflow-hidden whitespace-nowrap">${m.role2 || ''}</td>
               <td class="check-cell">
                 ${isChecked ? '<span class="check-mark">✓</span>' : ''}
               </td>
@@ -502,9 +543,11 @@
       const container = document.getElementById('extra-attendees-list');
       if (!container) return;
 
+      const maxLines = 7;
+
       if (extraAttendees.length === 0) {
         let emptyLines = '';
-        for (let i = 0; i < 7; i++) {
+        for (let i = 0; i < maxLines; i++) {
           emptyLines += `<div class="ruled-line"></div>`;
         }
         container.innerHTML = emptyLines;
@@ -515,27 +558,49 @@
       extraAttendees.forEach((person, idx) => {
         html += `
           <div class="flex items-center justify-between text-xs py-0.5 border-b border-gray-400">
-            <span class="font-semibold uppercase tracking-wide">${person.name} ${person.count > 1 ? `- ${person.count}` : ''}</span>
-            <div class="flex items-center gap-2 no-print">
-              <button onclick="removeExtraAttendee(${idx})" class="text-red-500 hover:text-red-700 text-[10px]"><i class="fa-solid fa-trash"></i></button>
+            <span class="font-semibold uppercase tracking-wide text-[10px] sm:text-xs">
+              ${person.name} ${person.count > 1 ? `<span class="font-bold text-blue-700 ml-1">- ${person.count}</span>` : ''}
+            </span>
+            <div class="flex items-center gap-1 no-print">
+              <button onclick="editExtraAttendeeCount(${idx})" title="Edit person count" class="text-gray-500 hover:text-blue-600 text-[10px] px-1"><i class="fa-solid fa-pen"></i></button>
+              <button onclick="removeExtraAttendee(${idx})" title="Remove attendee" class="text-red-500 hover:text-red-700 text-[10px] px-1"><i class="fa-solid fa-trash"></i></button>
             </div>
           </div>
         `;
       });
 
+      // Fill remaining space with ruled lines if less than maxLines
+      const fillCount = Math.max(0, maxLines - extraAttendees.length);
+      for (let i = 0; i < fillCount; i++) {
+        html += `<div class="ruled-line"></div>`;
+      }
+
       container.innerHTML = html;
     }
 
     function addExtraAttendeePrompt() {
-      const name = prompt("Enter extra attendee name (e.g., K. SINGLETARY):");
+      const name = prompt("Enter extra Zoom attendee name (e.g., K. SINGLETARY, NIETO, etc.):");
       if (!name || !name.trim()) return;
       
-      const countStr = prompt("Enter count (usually 1):", "1");
+      const countStr = prompt(`How many people are included on ${name.trim().toUpperCase()}'s connection? (e.g., 1, 2, 3):`, "1");
       const count = parseInt(countStr) || 1;
 
       extraAttendees.push({ name: name.trim().toUpperCase(), count: count });
       renderExtraAttendees();
       calculateTotals();
+    }
+
+    function editExtraAttendeeCount(idx) {
+      const current = extraAttendees[idx];
+      const newCountStr = prompt(`Update count for ${current.name}:`, current.count);
+      if (newCountStr !== null) {
+        const parsed = parseInt(newCountStr);
+        if (!isNaN(parsed) && parsed > 0) {
+          extraAttendees[idx].count = parsed;
+          renderExtraAttendees();
+          calculateTotals();
+        }
+      }
     }
 
     function removeExtraAttendee(idx) {
@@ -554,7 +619,7 @@
     }
 
     function calculateTotals() {
-      let zoomTotalFromChecks = 0;
+      let groupChecksTotal = 0;
 
       groupData.forEach(group => {
         let groupChecked = 0;
@@ -566,29 +631,30 @@
 
         const effectiveTotal = manualGroupTotals[group.id] !== undefined ? (parseInt(manualGroupTotals[group.id]) || 0) : groupChecked;
         
-        // Update input display for group total if present
+        // Update input display for group total
         const groupInput = document.getElementById(`group-total-${group.id}`);
         if (groupInput && manualGroupTotals[group.id] === undefined) {
           groupInput.value = groupChecked || '';
         }
 
-        zoomTotalFromChecks += effectiveTotal;
+        groupChecksTotal += effectiveTotal;
       });
 
-      // Zoom Total equals total checkmarks
-      document.getElementById('zoom-total').value = zoomTotalFromChecks;
+      // Calculate sum of Extra Attendees (e.g., 1, 2, 3 per entry)
+      let extraCountTotal = 0;
+      extraAttendees.forEach(p => {
+        extraCountTotal += (p.count || 1);
+      });
+
+      // Zoom Total = Checkmarks + Extra Attendees
+      const finalZoomTotal = groupChecksTotal + extraCountTotal;
+      document.getElementById('zoom-total').value = finalZoomTotal;
 
       // In-person attendance is manually entered
       const inPersonVal = parseInt(document.getElementById('in-person-total').value) || 0;
 
-      // Extra Attendees count
-      let extraCount = 0;
-      extraAttendees.forEach(p => {
-        extraCount += p.count;
-      });
-
-      // Grand Total = Zoom + In-Person + Extra Attendees
-      document.getElementById('grand-total').value = zoomTotalFromChecks + inPersonVal + extraCount;
+      // Grand Total = Zoom Total + In-Person Total
+      document.getElementById('grand-total').value = finalZoomTotal + inPersonVal;
     }
 
     function clearAllChecks() {
@@ -596,47 +662,48 @@
       extraAttendees = [];
       manualGroupTotals = {};
       document.getElementById('date-input').value = getFormattedCurrentDate();
-      document.getElementById('zoom-total').value = '0';
       document.getElementById('in-person-total').value = '0';
-      document.getElementById('grand-total').value = '0';
       renderSheet();
       calculateTotals();
     }
 
     function loadSampleData() {
       attendanceState = {};
+      manualGroupTotals = {};
 
-      // Sample Checks from provided image
-      attendanceState['g1_m11'] = true;
-      attendanceState['g1_m16'] = true;
-      attendanceState['g1_m20'] = true;
+      // Sample Checks matching original image (25 total checkmarks)
+      attendanceState['g1_m11'] = true; // Steve Palese
+      attendanceState['g1_m16'] = true; // Laura Vasil
+      attendanceState['g1_m20'] = true; // Cooper Mellow
 
-      attendanceState['g2_m8'] = true;
-      attendanceState['g2_m13'] = true;
+      attendanceState['g2_m8'] = true;  // William Clouser
+      attendanceState['g2_m13'] = true; // Jane Littrell
 
-      attendanceState['g3_m5'] = true;
-      attendanceState['g3_m16'] = true;
+      attendanceState['g3_m5'] = true;  // Jo Comfort
+      attendanceState['g3_m16'] = true; // Krystal McCann
 
-      attendanceState['g4_m2'] = true;
-      attendanceState['g4_m18'] = true;
+      attendanceState['g4_m2'] = true;  // Mandy Babbitt
+      attendanceState['g4_m18'] = true; // Richard Kruse
 
-      attendanceState['g5_m16'] = true;
+      attendanceState['g5_m16'] = true; // Kayla Martinez
+      manualGroupTotals[5] = 3;         // Group 5 written total = 3
 
-      attendanceState['g6_m1'] = true;
-      attendanceState['g6_m2'] = true;
-      attendanceState['g6_m3'] = true;
-      attendanceState['g6_m7'] = true;
-      attendanceState['g6_m8'] = true;
-      attendanceState['g6_m9'] = true;
-      attendanceState['g6_m10'] = true;
-      attendanceState['g6_m11'] = true;
-      attendanceState['g6_m12'] = true;
-      attendanceState['g6_m13'] = true;
-      attendanceState['g6_m14'] = true;
-      attendanceState['g6_m19'] = true;
-      attendanceState['g6_m20'] = true;
+      attendanceState['g6_m1'] = true;  // Val January
+      attendanceState['g6_m2'] = true;  // Mark Bailey
+      attendanceState['g6_m3'] = true;  // Kerri Bailey
+      attendanceState['g6_m7'] = true;  // Claire January
+      attendanceState['g6_m8'] = true;  // Doug Lawhon
+      attendanceState['g6_m9'] = true;  // Claudia Lawhon
+      attendanceState['g6_m10'] = true; // Joe Miller
+      attendanceState['g6_m11'] = true; // Cindy Miller
+      attendanceState['g6_m12'] = true; // Isaiah Peterson
+      attendanceState['g6_m13'] = true; // Jordan Peterson
+      attendanceState['g6_m14'] = true; // Rob Singleton
+      attendanceState['g6_m19'] = true; // Keith Graves
+      attendanceState['g6_m20'] = true; // Lisa Graves
+      manualGroupTotals[6] = 13;        // Group 6 written total = 13
 
-      // Handwritten Extra Attendees from example image
+      // Handwritten Extra Attendees from example image (Totaling 9 extra people)
       extraAttendees = [
         { name: "K. SINGLETARY", count: 1 },
         { name: "J. COMFORT", count: 1 },
@@ -645,7 +712,7 @@
         { name: "R. BAKER", count: 1 },
         { name: "TIM B", count: 1 },
         { name: "TIMOTHY", count: 1 },
-        { name: "NIETO", count: 2 }
+        { name: "NIETO", count: 2 } // Nieto counts as 2 people
       ];
 
       document.getElementById('date-input').value = getFormattedCurrentDate();
@@ -660,5 +727,4 @@
   </script>
 </body>
 </html>
-
 
