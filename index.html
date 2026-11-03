@@ -16,7 +16,7 @@
       }
     }
 
-    /* PRINT STYLES (Exact 6-Group Template) */
+    /* PRINT STYLES (Exact PDF Layout) */
     @media print {
       @page {
         size: letter portrait;
@@ -30,7 +30,7 @@
         padding: 0 !important;
         background-color: white !important;
         color: black !important;
-        font-size: 9px !important;
+        font-size: 8.8px !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         overflow: visible !important;
@@ -61,16 +61,16 @@
       .group-table th, .group-table td {
         border: 1px solid #333333;
         padding: 0px 2px !important;
-        font-size: 8.8px !important;
+        font-size: 8.5px !important;
         line-height: 1.1 !important;
-        height: 15px !important;
+        height: 14.2px !important;
       }
 
       .group-header-1 {
         background-color: #334155 !important;
         color: white !important;
         font-weight: bold;
-        font-size: 9.5px !important;
+        font-size: 9px !important;
         padding: 1.5px 3px !important;
       }
 
@@ -78,28 +78,19 @@
         background-color: #475569 !important;
         color: white !important;
         font-weight: bold;
-        font-size: 8.5px !important;
+        font-size: 8px !important;
         padding: 1px 3px !important;
       }
 
-      .faded-text {
-        color: #888888;
-      }
-
       .check-cell {
-        width: 24px;
+        width: 22px;
         text-align: center;
       }
 
       .check-mark {
         font-weight: bold;
-        font-size: 13px;
+        font-size: 12px;
         color: #000000;
-      }
-
-      .ruled-line {
-        border-bottom: 1px solid #444;
-        height: 17px;
       }
 
       input {
@@ -189,7 +180,7 @@
 
             <!-- Sort Direction Toggle -->
             <button onclick="toggleSort()" id="sort-toggle-btn" class="text-slate-400 hover:text-white text-[11px] font-medium flex items-center gap-1 bg-slate-800 px-2 py-1 rounded-md border border-slate-700">
-              <i class="fa-solid fa-arrow-down-a-z text-emerald-400"></i> <span id="sort-label">First Name</span>
+              <i class="fa-solid fa-arrow-down-a-z text-emerald-400"></i> <span id="sort-label">Last Name</span>
             </button>
           </div>
         </div>
@@ -211,10 +202,10 @@
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-1.5">
             <i class="fa-solid fa-users text-blue-400 text-xs"></i>
-            <h2 class="text-xs font-bold text-white uppercase tracking-wider">Extra Zoom Attendees</h2>
+            <h2 class="text-xs font-bold text-white uppercase tracking-wider">Zoom Visitors</h2>
           </div>
           <button onclick="openExtraModal()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-2.5 py-1 rounded-lg flex items-center gap-1 shadow">
-            <i class="fa-solid fa-plus text-[10px]"></i> Add Person
+            <i class="fa-solid fa-plus text-[10px]"></i> Add Visitor
           </button>
         </div>
 
@@ -275,40 +266,32 @@
 
 
   <!-- ========================================================= -->
-  <!-- PRINT-ONLY PAPER SHEET TEMPLATE (Exact 6-Group Layout)    -->
+  <!-- PRINT-ONLY PAPER SHEET TEMPLATE (Matches Uploaded PDF)    -->
   <!-- ========================================================= -->
-  <div class="print-only-sheet bg-white text-black p-2 max-w-[1020px] mx-auto">
+  <div class="print-only-sheet bg-white text-black p-1 max-w-[1020px] mx-auto">
     
-    <!-- Top Row: Groups 1, 2, 3 -->
-    <div class="grid grid-cols-3 gap-2 mb-2">
+    <!-- Top Row: 4 Columns (Group 1, Group 2, Group 3, Zoom Visitors) -->
+    <div class="grid grid-cols-4 gap-1.5 mb-2">
       <div id="print-group-1"></div>
       <div id="print-group-2"></div>
       <div id="print-group-3"></div>
+      <div id="print-group-visitors"></div>
     </div>
 
-    <!-- Bottom Row: Groups 4, 5, 6 + Side Extra Section -->
-    <div class="grid grid-cols-12 gap-2">
+    <!-- Bottom Row: 3 Groups + Lower-Right Summary -->
+    <div class="grid grid-cols-12 gap-1.5">
       <div class="col-span-4" id="print-group-4"></div>
       <div class="col-span-4" id="print-group-5"></div>
 
       <div class="col-span-4 flex flex-col justify-between">
         <div id="print-group-6"></div>
 
-        <!-- Extra Attendees & Summary Block -->
-        <div class="flex gap-2 mt-1.5 items-end">
-          
-          <!-- Extra Attendees handwritten/typed lines -->
-          <div class="flex-1 border border-gray-500 p-1 bg-gray-50/30 rounded-sm">
-            <div id="print-extra-list" class="space-y-0.5">
-              <!-- Dynamically populated rows for print -->
-            </div>
-          </div>
-
-          <!-- Bottom Right Summary Box -->
-          <div class="w-40 border-2 border-black p-1 bg-white shrink-0">
+        <!-- Summary Block (Lower Right Corner) -->
+        <div class="flex justify-end mt-1">
+          <div class="w-48 border-2 border-black p-1.5 bg-white shrink-0">
             <div class="flex justify-between items-center border-b border-black pb-0.5 mb-0.5">
               <span class="font-bold text-xs">Date:</span>
-              <input type="text" id="print-date" value="" class="w-20 text-right font-bold text-xs outline-none bg-transparent">
+              <input type="text" id="print-date" value="" class="w-24 text-right font-bold text-xs outline-none bg-transparent">
             </div>
             <div class="flex justify-between items-center border-b border-black pb-0.5 mb-0.5">
               <span class="font-bold text-xs">Zoom Total:</span>
@@ -323,25 +306,24 @@
               <input type="number" id="print-grand-total" value="0" readonly class="w-16 text-right font-extrabold text-xs sm:text-sm outline-none bg-transparent">
             </div>
           </div>
-
         </div>
+
       </div>
     </div>
 
   </div>
 
-
   <!-- ========================================================= -->
   <!-- APPLICATION LOGIC                                         -->
   <!-- ========================================================= -->
   <script>
-    // Master Congregation Data Structure
+    // Master Congregation Data Structure exactly matching the PDF
     const groupData = [
       {
         id: 1,
         title: "Gary Keba Group",
         subtitle: "Keba Home",
-        targetRows: 24,
+        targetRows: 26,
         members: [
           { firstName: "Gary", lastName: "Keba", role1: "Elder", role2: "GO", faded: false },
           { firstName: "Peter", lastName: "Longdyke", role1: "MS", role2: "GA", faded: false },
@@ -353,6 +335,9 @@
           { firstName: "Deb", lastName: "Keba", role1: "", role2: "", faded: false },
           { firstName: "Amy", lastName: "Longdyke", role1: "", role2: "", faded: false },
           { firstName: "Mario", lastName: "Martinez", role1: "", role2: "", faded: false },
+          { firstName: "Cooper", lastName: "Mellow", role1: "", role2: "", faded: false },
+          { firstName: "Joe", lastName: "Miller", role1: "", role2: "", faded: false },
+          { firstName: "Cindy", lastName: "Miller", role1: "", role2: "", faded: false },
           { firstName: "Roger", lastName: "Onufer", role1: "", role2: "", faded: false },
           { firstName: "Steve", lastName: "Palese", role1: "", role2: "", faded: false },
           { firstName: "Thomas", lastName: "Shubitowski", role1: "", role2: "", faded: false },
@@ -363,66 +348,64 @@
           { firstName: "Joe", lastName: "West", role1: "", role2: "", faded: false },
           { firstName: "Jennifer", lastName: "West", role1: "", role2: "", faded: false },
           { firstName: "Lisa", lastName: "Whitener", role1: "", role2: "", faded: false },
-          { firstName: "Cooper", lastName: "Mellow", role1: "", role2: "", faded: true },
-          { firstName: "Adam", lastName: "Sanner", role1: "", role2: "", faded: true },
-          { firstName: "Alanna", lastName: "Sanner", role1: "", role2: "", faded: true },
-          { firstName: "Andrea", lastName: "Sanner", role1: "", role2: "", faded: true }
+          { firstName: "Adam", lastName: "Sanner", role1: "", role2: "", faded: false },
+          { firstName: "Alanna", lastName: "Sanner", role1: "", role2: "", faded: false },
+          { firstName: "Andrea", lastName: "Sanner", role1: "", role2: "", faded: false }
         ]
       },
       {
         id: 2,
         title: "Kevin Rourke Group",
         subtitle: "Breazeale Home",
-        targetRows: 24,
+        targetRows: 26,
         members: [
-          { firstName: "Kevin", lastName: "Rourke", role1: "Elder", role2: "GO/SP", faded: false },
+          { firstName: "Kevin", lastName: "Rourke", role1: "Elder", role2: "GO", faded: false },
           { firstName: "Joseph", lastName: "Schulte", role1: "MS", role2: "GA", faded: false },
           { firstName: "Halle", lastName: "Baum", role1: "", role2: "", faded: false },
           { firstName: "Shirley", lastName: "Baum", role1: "", role2: "", faded: false },
           { firstName: "Nancy", lastName: "Breazeale", role1: "", role2: "", faded: false },
-          { firstName: "Jennifer", lastName: "Breazeale", role1: "", role2: "", faded: false },
-          { firstName: "Lauren", lastName: "Breazeale", role1: "", role2: "", faded: false },
           { firstName: "Margaret", lastName: "Brown", role1: "", role2: "", faded: false },
           { firstName: "William", lastName: "Clouser", role1: "", role2: "", faded: false },
           { firstName: "Lynne", lastName: "Freeman", role1: "", role2: "", faded: false },
           { firstName: "Joe", lastName: "Haines", role1: "MS", role2: "", faded: false },
-          { firstName: "Rick", lastName: "Kraus", role1: "MS", role2: "", faded: false },
-          { firstName: "Lisa", lastName: "Kraus", role1: "", role2: "", faded: false },
+          { firstName: "Dewaine", lastName: "Hall", role1: "", role2: "", faded: false },
+          { firstName: "Rebekah", lastName: "Hall", role1: "", role2: "", faded: false },
+          { firstName: "Timothy", lastName: "Hall", role1: "", role2: "", faded: false },
           { firstName: "Jane", lastName: "Littrell", role1: "", role2: "", faded: false },
           { firstName: "Mary", lastName: "Rourke", role1: "", role2: "", faded: false },
           { firstName: "Coralie", lastName: "Schulte", role1: "", role2: "", faded: false },
-          { firstName: "Leo", lastName: "Tobar", role1: "", role2: "", faded: false },
+          { firstName: "Leo", lastName: "Tobar", role1: "MS", role2: "", faded: false },
           { firstName: "Nicole", lastName: "Tobar", role1: "", role2: "", faded: false },
           { firstName: "Addison", lastName: "Tobar", role1: "", role2: "", faded: false },
-          { firstName: "Pat Jenkins", lastName: "Jenkins", role1: "", role2: "", faded: true },
-          { firstName: "Doug", lastName: "Kuelz", role1: "", role2: "", faded: true }
+          { firstName: "Pat Jenkins", lastName: "Jenkins", role1: "", role2: "", faded: false },
+          { firstName: "Doug", lastName: "Kuelz", role1: "", role2: "", faded: false },
+          { firstName: "Matthew", lastName: "Hall", role1: "", role2: "", faded: false }
         ]
       },
       {
         id: 3,
         title: "Paul Harrison Jr Group",
-        subtitle: "P Harrison Jr Home",
-        targetRows: 24,
+        subtitle: "Breazeale Home w Rourke Group",
+        targetRows: 26,
         members: [
-          { firstName: "Paul Jr", lastName: "Harrison", role1: "Elder", role2: "GO/RP", faded: false },
-          { firstName: "Robert", lastName: "Harrison", role1: "Elder", role2: "GA/RP", faded: false },
-          { firstName: "Linda", lastName: "Alessi", role1: "", role2: "", faded: false },
+          { firstName: "Paul Jr", lastName: "Harrison", role1: "Elder", role2: "GO", faded: false },
+          { firstName: "Robert", lastName: "Harrison", role1: "Elder", role2: "GA", faded: false },
+          { firstName: "Mandy", lastName: "Babbitt", role1: "", role2: "", faded: false },
           { firstName: "Eduardo", lastName: "Campos", role1: "", role2: "", faded: false },
           { firstName: "Mariana", lastName: "Campos", role1: "", role2: "", faded: false },
           { firstName: "Jo", lastName: "Comfort", role1: "", role2: "", faded: false },
-          { firstName: "Mikiko", lastName: "Ellis", role1: "", role2: "", faded: false },
           { firstName: "Diana", lastName: "Fox", role1: "", role2: "", faded: false },
+          { firstName: "Diane", lastName: "Hagopian", role1: "", role2: "", faded: false },
           { firstName: "Adriana", lastName: "Harrison", role1: "", role2: "", faded: false },
-          { firstName: "Deidre", lastName: "Harrison", role1: "", role2: "", faded: false },
-          { firstName: "Mia", lastName: "Harrison", role1: "", role2: "", faded: false },
           { firstName: "Aiden", lastName: "Harrison", role1: "", role2: "", faded: false },
-          { firstName: "Paul Sr", lastName: "Harrison", role1: "Elder", role2: "", faded: false },
+          { firstName: "Deidre", lastName: "Harrison", role1: "", role2: "", faded: false },
           { firstName: "Kristi", lastName: "Harrison", role1: "", role2: "", faded: false },
+          { firstName: "Mia", lastName: "Harrison", role1: "", role2: "", faded: false },
+          { firstName: "Paul Sr", lastName: "Harrison", role1: "Elder", role2: "", faded: false },
+          { firstName: "David", lastName: "McCann", role1: "", role2: "", faded: false },
           { firstName: "John", lastName: "McCann", role1: "", role2: "", faded: false },
           { firstName: "Karen", lastName: "McCann", role1: "", role2: "", faded: false },
-          { firstName: "Krystal", lastName: "McCann", role1: "", role2: "", faded: false },
-          { firstName: "David", lastName: "McCann", role1: "", role2: "", faded: false },
-          { firstName: "Erika", lastName: "Sobeck", role1: "", role2: "", faded: false }
+          { firstName: "Krystal", lastName: "McCann", role1: "", role2: "", faded: false }
         ]
       },
       {
@@ -431,51 +414,44 @@
         subtitle: "M Kruse Home",
         targetRows: 26,
         members: [
-          { firstName: "Matt", lastName: "Kruse", role1: "Elder, RP", role2: "GO/RP", faded: false },
-          { firstName: "Tyler", lastName: "Breazeale", role1: "MS", role2: "GA", faded: false },
-          { firstName: "Mandy", lastName: "Babbitt", role1: "", role2: "", faded: false },
+          { firstName: "Matt", lastName: "Kruse", role1: "Elder", role2: "GO", faded: false },
+          { firstName: "Rick", lastName: "Kraus", role1: "MS", role2: "GA", faded: false },
           { firstName: "Larry", lastName: "Breazeale", role1: "", role2: "", faded: false },
           { firstName: "Cherity", lastName: "Breazeale", role1: "", role2: "", faded: false },
-          { firstName: "Kayla", lastName: "Breazeale", role1: "", role2: "", faded: false },
           { firstName: "Holly", lastName: "Cormier", role1: "", role2: "", faded: false },
           { firstName: "Edward", lastName: "Eggley", role1: "", role2: "", faded: false },
           { firstName: "Lynn", lastName: "Eggley", role1: "", role2: "", faded: false },
           { firstName: "Phillip", lastName: "Goers", role1: "", role2: "", faded: false },
           { firstName: "Vickie", lastName: "Goers", role1: "", role2: "", faded: false },
           { firstName: "Megan", lastName: "Goodwin", role1: "", role2: "", faded: false },
-          { firstName: "Diane", lastName: "Hagopian", role1: "", role2: "", faded: false },
-          { firstName: "Dewaine", lastName: "Hall", role1: "", role2: "", faded: false },
-          { firstName: "Rebekah", lastName: "Hall", role1: "", role2: "", faded: false },
-          { firstName: "Timothy", lastName: "Hall", role1: "", role2: "", faded: false },
+          { firstName: "Cindi", lastName: "Herrera", role1: "", role2: "", faded: false },
+          { firstName: "Jennifer", lastName: "Husketh-Wood", role1: "", role2: "", faded: false },
+          { firstName: "Lisa", lastName: "Kraus", role1: "", role2: "", faded: false },
           { firstName: "Viki", lastName: "Kruse", role1: "", role2: "", faded: false },
-          { firstName: "Kolby", lastName: "Kruse", role1: "", role2: "", faded: false },
+          { firstName: "Kolby", lastName: "Kruse", role1: "MS", role2: "", faded: false },
           { firstName: "Richard", lastName: "Kruse", role1: "", role2: "", faded: false },
           { firstName: "Jeannette", lastName: "Kruse", role1: "", role2: "", faded: false },
-          { firstName: "Jennifer", lastName: "Wood", role1: "", role2: "", faded: false },
-          { firstName: "Dennis", lastName: "Wright", role1: "", role2: "", faded: false },
-          { firstName: "Kim", lastName: "Wright", role1: "", role2: "", faded: false },
-          { firstName: "Matthew", lastName: "Hall", role1: "", role2: "", faded: true },
-          { firstName: "Geneva", lastName: "Rogers", role1: "", role2: "", faded: true },
-          { firstName: "Jimmy", lastName: "Rogers", role1: "", role2: "", faded: true }
+          { firstName: "Geneva", lastName: "Rogers", role1: "", role2: "", faded: false },
+          { firstName: "Jimmy", lastName: "Rogers", role1: "", role2: "", faded: false }
         ]
       },
       {
         id: 5,
         title: "Robert Miranda Group",
-        subtitle: "Kingdom Hall",
+        subtitle: "Holland Home",
         targetRows: 26,
         members: [
-          { firstName: "Robert", lastName: "Miranda", role1: "Elder", role2: "GO/AP", faded: false },
+          { firstName: "Robert", lastName: "Miranda", role1: "Elder", role2: "GO", faded: false },
           { firstName: "Luke", lastName: "Holland", role1: "Elder", role2: "GA", faded: false },
           { firstName: "Amy", lastName: "Austin", role1: "", role2: "", faded: false },
           { firstName: "Katherine", lastName: "Bass", role1: "", role2: "", faded: false },
-          { firstName: "Jesse", lastName: "Clifton", role1: "", role2: "", faded: false },
+          { firstName: "Jesse", lastName: "Clifton", role1: "MS", role2: "", faded: false },
           { firstName: "Ann", lastName: "Clifton", role1: "", role2: "", faded: false },
           { firstName: "Jessica", lastName: "Clifton", role1: "", role2: "", faded: false },
           { firstName: "Clay", lastName: "Ford", role1: "", role2: "", faded: false },
           { firstName: "James", lastName: "Harrison", role1: "", role2: "", faded: false },
+          { firstName: "Brook", lastName: "Holland", role1: "", role2: "", faded: false },
           { firstName: "Jessica", lastName: "Holland", role1: "", role2: "", faded: false },
-          { firstName: "Hudson", lastName: "Holland", role1: "MS", role2: "", faded: false },
           { firstName: "Weston", lastName: "Holland", role1: "", role2: "", faded: false },
           { firstName: "Sawyer", lastName: "Holland", role1: "", role2: "", faded: false },
           { firstName: "Isaak", lastName: "Holland", role1: "", role2: "", faded: false },
@@ -485,39 +461,43 @@
           { firstName: "Marylynn", lastName: "Miranda", role1: "", role2: "", faded: false },
           { firstName: "Robert", lastName: "Raymond", role1: "", role2: "", faded: false },
           { firstName: "Jeannie", lastName: "Raymond", role1: "", role2: "", faded: false },
-          { firstName: "Tammy", lastName: "Griffin", role1: "", role2: "", faded: true },
-          { firstName: "Brook", lastName: "Holland", role1: "", role2: "", faded: true },
-          { firstName: "Louise", lastName: "Weeks", role1: "", role2: "", faded: true }
+          { firstName: "Dennis", lastName: "Wright", role1: "", role2: "", faded: false },
+          { firstName: "Kim", lastName: "Wright", role1: "", role2: "", faded: false },
+          { firstName: "Louise", lastName: "Weeks", role1: "", role2: "", faded: false },
+          { firstName: "Tammy", lastName: "Griffin", role1: "", role2: "", faded: false },
+          { firstName: "Brook", lastName: "Holland", role1: "", role2: "", faded: false }
         ]
       },
       {
         id: 6,
         title: "Larry Goodwin Group",
-        subtitle: "Janvary Home",
+        subtitle: "Holland Home w Miranda Group",
         targetRows: 26,
         members: [
           { firstName: "Larry", lastName: "Goodwin", role1: "Elder", role2: "GO", faded: false },
-          { firstName: "Val", lastName: "January", role1: "Elder", role2: "GA", faded: false },
+          { firstName: "Val", lastName: "Janvary", role1: "Elder", role2: "GA", faded: false },
+          { firstName: "Christy", lastName: "Aponte", role1: "", role2: "", faded: false },
+          { firstName: "Harry", lastName: "Aponte", role1: "", role2: "", faded: false },
           { firstName: "Mark", lastName: "Bailey", role1: "", role2: "", faded: false },
           { firstName: "Kerri", lastName: "Bailey", role1: "", role2: "", faded: false },
           { firstName: "Seth", lastName: "Clouser", role1: "", role2: "", faded: false },
           { firstName: "Michelle", lastName: "Clouser", role1: "", role2: "", faded: false },
           { firstName: "Judy", lastName: "Goodwin", role1: "", role2: "", faded: false },
-          { firstName: "Claire", lastName: "January", role1: "", role2: "", faded: false },
+          { firstName: "Claire", lastName: "Janvary", role1: "", role2: "", faded: false },
           { firstName: "Doug", lastName: "Lawhon", role1: "", role2: "", faded: false },
           { firstName: "Claudia", lastName: "Lawhon", role1: "", role2: "", faded: false },
-          { firstName: "Joe", lastName: "Miller", role1: "", role2: "", faded: false },
-          { firstName: "Cindy", lastName: "Miller", role1: "", role2: "", faded: false },
           { firstName: "Isaiah", lastName: "Peterson", role1: "", role2: "", faded: false },
           { firstName: "Jordan", lastName: "Peterson", role1: "", role2: "", faded: false },
           { firstName: "Rob", lastName: "Singleton", role1: "", role2: "", faded: false },
           { firstName: "Cristal", lastName: "Singleton", role1: "", role2: "", faded: false },
           { firstName: "Jayven", lastName: "Singleton", role1: "", role2: "", faded: false },
+          { firstName: "Joe", lastName: "Vartuli", role1: "", role2: "", faded: false },
+          { firstName: "Timri", lastName: "Vartuli", role1: "", role2: "", faded: false },
           { firstName: "Eric", lastName: "Wright", role1: "", role2: "", faded: false },
           { firstName: "Sarah", lastName: "Wright", role1: "", role2: "", faded: false },
-          { firstName: "Keith", lastName: "Graves", role1: "", role2: "", faded: true },
-          { firstName: "Lisa", lastName: "Graves", role1: "", role2: "", faded: true },
-          { firstName: "Joy", lastName: "Jarrard", role1: "", role2: "", faded: true }
+          { firstName: "Keith", lastName: "Graves", role1: "", role2: "", faded: false },
+          { firstName: "Lisa", lastName: "Graves", role1: "", role2: "", faded: false },
+          { firstName: "Joy", lastName: "Jarrard", role1: "", role2: "", faded: false }
         ]
       }
     ];
@@ -527,7 +507,7 @@
     let extraAttendees = [];
     let manualGroupTotals = {};
     let inPersonCount = 0;
-    let sortByField = 'firstName'; // 'firstName' or 'lastName'
+    let sortByField = 'lastName'; // Default to 'lastName'
     let currentFilter = 'all'; // 'all', 'checked', 'unchecked'
     let modalCountVal = 1;
 
@@ -607,12 +587,12 @@
     }
 
     function toggleSort() {
-      if (sortByField === 'firstName') {
-        sortByField = 'lastName';
-        document.getElementById('sort-label').innerText = 'Last Name';
-      } else {
+      if (sortByField === 'lastName') {
         sortByField = 'firstName';
         document.getElementById('sort-label').innerText = 'First Name';
+      } else {
+        sortByField = 'lastName';
+        document.getElementById('sort-label').innerText = 'Last Name';
       }
       renderMobileList();
     }
@@ -633,10 +613,10 @@
 
       // Sort
       let sorted = [...allMembersList].sort((a, b) => {
-        if (sortByField === 'firstName') {
-          return a.firstName.localeCompare(b.firstName) || a.lastName.localeCompare(b.lastName);
+        if (sortByField === 'lastName') {
+          return a.lastName.localeCompare(b.lastName) || a.firstName.localeCompare(b.firstName);
         } else {
-          return a.lastName.localeCompare(b.lastName) || a.firstName.localeCompare(a.firstName);
+          return a.firstName.localeCompare(b.firstName) || a.lastName.localeCompare(b.lastName);
         }
       });
 
@@ -670,129 +650,129 @@
       if (filtered.length === 0) {
         container.innerHTML = `
           <div class="text-center py-8 bg-slate-800/40 rounded-xl border border-slate-700/50">
-            <i class="fa-solid fa-user-slash text-2xl text-slate-500 mb-2"></i>
-            <p class="text-xs text-slate-400 font-medium">No members found matching your query.</p>
-          </div>
-        `;
-        return;
-      }
+    /* Renders the Print-Only Layout Matching the PDF (4 Columns Top, 3 Groups Bottom + Summary) */
+    function renderPrintSheet() {
+      // Render Groups 1 to 6
+      groupData.forEach(group => {
+        const container = document.getElementById(`print-group-${group.id}`);
+        if (!container) return;
 
-      let html = '';
-      filtered.forEach(m => {
-        const isChecked = !!attendanceState[m.key];
-        
-        const cardBg = isChecked 
-          ? 'bg-emerald-950/40 border-emerald-500/60 text-white' 
-          : (m.faded ? 'bg-slate-800/30 border-slate-700/40 text-slate-400' : 'bg-slate-800/80 border-slate-700 text-slate-200');
+        let rowsHtml = '';
+        let groupCheckedCount = 0;
 
-        const nameDisplay = sortByField === 'lastName' 
-          ? `<span class="font-extrabold text-white">${m.lastName}</span>, ${m.firstName}`
-          : `<span class="font-extrabold text-white">${m.firstName}</span> ${m.lastName}`;
+        group.members.forEach((m, idx) => {
+          const key = `g${group.id}_m${idx}`;
+          const isChecked = !!attendanceState[key];
+          if (isChecked) groupCheckedCount++;
 
-        const roleBadges = (m.role1 || m.role2) 
-          ? `<span class="text-[9px] font-bold bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded ml-1">${[m.role1, m.role2].filter(Boolean).join(' ')}</span>`
-          : '';
+          const roleDisplay = [m.role1, m.role2].filter(Boolean).join('-');
 
-        html += `
-          <div onclick="toggleCheckKey('${m.key}')" class="touch-row p-3 rounded-xl border ${cardBg} flex items-center justify-between shadow-sm cursor-pointer transition-all active:scale-[0.99]">
-            <div class="space-y-0.5 pr-2">
-              <div class="text-sm font-medium flex items-center gap-1">
-                ${nameDisplay}
-                ${roleBadges}
-              </div>
-              <div class="text-[10px] text-slate-400 flex items-center gap-1">
-                <i class="fa-solid fa-layer-group text-[9px] text-slate-500"></i> ${m.groupTitle}
-              </div>
-            </div>
+          rowsHtml += `
+            <tr class="${m.faded ? 'faded-text' : ''}">
+              <td class="text-left font-medium overflow-hidden whitespace-nowrap">${m.firstName}</td>
+              <td class="text-left overflow-hidden whitespace-nowrap">${m.lastName}</td>
+              <td class="text-center text-[8.5px] overflow-hidden whitespace-nowrap">${roleDisplay}</td>
+              <td class="check-cell">
+                ${isChecked ? '<span class="check-mark">✓</span>' : ''}
+              </td>
+            </tr>
+          `;
+        });
 
-            <div class="shrink-0">
-              <div class="w-7 h-7 rounded-lg border flex items-center justify-center transition-colors ${isChecked ? 'bg-emerald-500 border-emerald-400 text-slate-950 font-black' : 'border-slate-600 bg-slate-900/50 text-transparent'}">
-                <i class="fa-solid fa-check text-sm"></i>
-              </div>
-            </div>
-          </div>
-        `;
-      });
+        // Fill empty rows to maintain uniform 26-row height
+        const emptyRowsNeeded = Math.max(0, group.targetRows - group.members.length);
+        for (let i = 0; i < emptyRowsNeeded; i++) {
+          rowsHtml += `
+            <tr>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td class="check-cell">&nbsp;</td>
+            </tr>
+          `;
+        }
 
-      container.innerHTML = html;
-      renderMobileExtraList();
-    }
+        const displayTotal = manualGroupTotals[group.id] !== undefined ? manualGroupTotals[group.id] : (groupCheckedCount || '');
 
-    function renderMobileExtraList() {
-      const container = document.getElementById('mobile-extra-list');
-      if (!container) return;
-
-      if (extraAttendees.length === 0) {
         container.innerHTML = `
-          <p class="text-[11px] text-slate-500 italic py-1 text-center">No extra Zoom attendees added yet.</p>
-        `;
-        return;
-      }
-
-      let html = '';
-      extraAttendees.forEach((person, idx) => {
-        html += `
-          <div class="flex items-center justify-between bg-slate-900/90 border border-slate-700/80 rounded-lg p-2 text-xs">
-            <div class="font-bold text-slate-100 flex items-center gap-1">
-              <span>${person.name}</span>
-              ${person.count > 1 ? `<span class="bg-blue-900/60 text-blue-300 border border-blue-500/40 text-[10px] px-1.5 py-0.2 rounded font-extrabold">+${person.count}</span>` : ''}
-            </div>
-
-            <div class="flex items-center gap-1">
-              <button onclick="stepExtraCount(${idx}, -1)" class="w-6 h-6 rounded-md bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs flex items-center justify-center">-</button>
-              <span class="w-5 text-center font-bold text-blue-400 text-xs">${person.count}</span>
-              <button onclick="stepExtraCount(${idx}, 1)" class="w-6 h-6 rounded-md bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs flex items-center justify-center">+</button>
-              <button onclick="removeExtraAttendee(${idx})" class="text-rose-400 hover:text-rose-300 ml-1 p-1"><i class="fa-solid fa-trash text-xs"></i></button>
-            </div>
-          </div>
+          <table class="group-table">
+            <thead>
+              <tr>
+                <th colspan="4" class="group-header-1">${group.title}</th>
+              </tr>
+              <tr>
+                <th colspan="4" class="group-header-2">${group.subtitle}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+            <tfoot>
+              <tr class="font-bold bg-gray-50">
+                <td colspan="3" class="text-left px-1 border border-gray-700">Group Total:</td>
+                <td class="text-center border border-gray-700 font-bold">
+                  ${displayTotal}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
         `;
       });
 
-      container.innerHTML = html;
-    }
+      // Render 4th Top Column: Zoom Visitors Column (matching the PDF)
+      const visitorsContainer = document.getElementById('print-group-visitors');
+      if (visitorsContainer) {
+        let visitorRowsHtml = '';
+        let visitorsTotalCount = 0;
 
-    /* Modal Dialog Controls */
-    function openExtraModal() {
-      modalCountVal = 1;
-      document.getElementById('modal-name-input').value = '';
-      document.getElementById('modal-count-display').innerText = '1';
-      document.getElementById('extra-modal').classList.remove('hidden');
-      setTimeout(() => document.getElementById('modal-name-input').focus(), 100);
-    }
+        for (let i = 0; i < 26; i++) {
+          const visitor = extraAttendees[i];
+          if (visitor) {
+            visitorsTotalCount += (visitor.count || 1);
+            const countLabel = visitor.count > 1 ? ` - ${visitor.count}` : '';
+            visitorRowsHtml += `
+              <tr>
+                <td colspan="3" class="text-left font-semibold uppercase text-[8.5px] overflow-hidden whitespace-nowrap px-1">
+                  ${visitor.name}${countLabel}
+                </td>
+                <td class="check-cell">
+                  <span class="check-mark">✓</span>
+                </td>
+              </tr>
+            `;
+          } else {
+            visitorRowsHtml += `
+              <tr>
+                <td colspan="3">&nbsp;</td>
+                <td class="check-cell">&nbsp;</td>
+              </tr>
+            `;
+          }
+        }
 
-    function closeExtraModal() {
-      document.getElementById('extra-modal').classList.add('hidden');
-    }
-
-    function adjustModalCount(delta) {
-      modalCountVal = Math.max(1, modalCountVal + delta);
-      document.getElementById('modal-count-display').innerText = modalCountVal;
-    }
-
-    function submitExtraModal() {
-      const nameInput = document.getElementById('modal-name-input').value;
-      if (!nameInput || !nameInput.trim()) {
-        closeExtraModal();
-        return;
-      }
-
-      extraAttendees.push({
-        name: nameInput.trim().toUpperCase(),
-        count: modalCountVal
-      });
-
-      closeExtraModal();
-      renderMobileExtraList();
-      renderPrintSheet();
-      calculateTotals();
-    }
-
-    function stepExtraCount(idx, delta) {
-      if (extraAttendees[idx]) {
-        extraAttendees[idx].count = Math.max(1, extraAttendees[idx].count + delta);
-        renderMobileExtraList();
-        renderPrintSheet();
-        calculateTotals();
+        visitorsContainer.innerHTML = `
+          <table class="group-table">
+            <thead>
+              <tr>
+                <th colspan="4" class="group-header-1">&nbsp;</th>
+              </tr>
+              <tr>
+                <th colspan="4" class="group-header-2">Zoom Visitors</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${visitorRowsHtml}
+            </tbody>
+            <tfoot>
+              <tr class="font-bold bg-gray-50">
+                <td colspan="3" class="text-left px-1 border border-gray-700">Group Total:</td>
+                <td class="text-center border border-gray-700 font-bold">
+                  ${visitorsTotalCount || ''}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        `;
       }
     }
 
@@ -1045,4 +1025,3 @@
   </script>
 </body>
 </html>
-
