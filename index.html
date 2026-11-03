@@ -650,6 +650,198 @@
       if (filtered.length === 0) {
         container.innerHTML = `
           <div class="text-center py-8 bg-slate-800/40 rounded-xl border border-slate-700/50">
+            <i class="fa-solid fa-user-slash text-2xl text-slate-500 mb-2"></i>
+            <p class="text-xs text-slate-400 font-medium">No members found matching your query.</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      filtered.forEach(m => {
+        const isChecked = !!attendanceState[m.key];
+        
+        const cardBg = isChecked 
+          ? 'bg-emerald-950/40 border-emerald-500/60 text-white' 
+          : (m.faded ? 'bg-slate-800/30 border-slate-700/40 text-slate-400' : 'bg-slate-800/80 border-slate-700 text-slate-200');
+
+        const nameDisplay = sortByField === 'lastName' 
+          ? `<span class="font-extrabold text-white">${m.lastName}</span>, ${m.firstName}`
+          : `<span class="font-extrabold text-white">${m.firstName}</span> ${m.lastName}`;
+
+        const roleBadges = (m.role1 || m.role2) 
+          ? `<span class="text-[9px] font-bold bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded ml-1">${[m.role1, m.role2].filter(Boolean).join(' ')}</span>`
+          : '';
+
+        html += `
+          <div onclick="toggleCheckKey('${m.key}')" class="touch-row p-3 rounded-xl border ${cardBg} flex items-center justify-between shadow-sm cursor-pointer transition-all active:scale-[0.99]">
+            <div class="space-y-0.5 pr-2">
+              <div class="text-sm font-medium flex items-center gap-1">
+                ${nameDisplay}
+                ${roleBadges}
+              </div>
+              <div class="text-[10px] text-slate-400 flex items-center gap-1">
+                <i class="fa-solid fa-layer-group text-[9px] text-slate-500"></i> ${m.groupTitle}
+              </div>
+            </div>
+
+            <div class="shrink-0">
+              <div class="w-7 h-7 rounded-lg border flex items-center justify-center transition-colors ${isChecked ? 'bg-emerald-500 border-emerald-400 text-slate-950 font-black' : 'border-slate-600 bg-slate-900/50 text-transparent'}">
+                <i class="fa-solid fa-check text-sm"></i>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+      renderMobileExtraList();
+    }
+
+    function renderMobileExtraList() {
+      const container = document.getElementById('mobile-extra-list');
+      if (!container) return;
+
+      if (extraAttendees.length === 0) {
+        container.innerHTML = `
+          <p class="text-[11px] text-slate-500 italic py-1 text-center">No extra Zoom attendees added yet.</p>
+        `;
+        return;
+      }
+
+      let html = '';
+      extraAttendees.forEach((person, idx) => {
+        html += `
+          <div class="flex items-center justify-between bg-slate-900/90 border border-slate-700/80 rounded-lg p-2 text-xs">
+            <div class="font-bold text-slate-100 flex items-center gap-1">
+              <span>${person.name}</span>
+              ${person.count > 1 ? `<span class="bg-blue-900/60 text-blue-300 border border-blue-500/40 text-[10px] px-1.5 py-0.2 rounded font-extrabold">+${person.count}</span>` : ''}
+            </div>
+
+            <div class="flex items-center gap-1">
+              <button onclick="stepExtraCount(${idx}, -1)" class="w-6 h-6 rounded-md bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs flex items-center justify-center">-</button>
+              <span class="w-5 text-center font-bold text-blue-400 text-xs">${person.count}</span>
+              <button onclick="stepExtraCount(${idx}, 1)" class="w-6 h-6 rounded-md bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs flex items-center justify-center">+</button>
+              <button onclick="removeExtraAttendee(${idx})" class="text-rose-400 hover:text-rose-300 ml-1 p-1"><i class="fa-solid fa-trash text-xs"></i></button>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    /* Modal Dialog Controls */
+    function openExtraModal() {
+      modalCountVal = 1;
+      document.getElementById('modal-name-input').value = '';
+      document.getElementById('modal-count-display').innerText = '1';
+      document.getElementById('extra-modal').classList.remove('hidden');
+      setTimeout(() => document.getElementById('modal-name-input').focus(), 100);
+    }
+
+    function closeExtraModal() {
+      document.getElementById('extra-modal').classList.add('hidden');
+    }
+
+    function adjustModalCount(delta) {
+      modalCountVal = Math.max(1, modalCountVal + delta);
+      document.getElementById('modal-count-display').innerText = modalCountVal;
+    }
+
+    function submitExtraModal() {
+      const nameInput = document.getElementById('modal-name-input').value;
+      if (!nameInput || !nameInput.trim()) {
+        closeExtraModal();
+        return;
+      }
+
+      extraAttendees.push({
+        name: nameInput.trim().toUpperCase(),
+        count: modalCountVal
+      });
+
+      closeExtraModal();
+      renderMobileExtraList();
+      renderPrintSheet();
+      calculateTotals();
+    }
+
+    function stepExtraCount(idx, delta) {
+      if (extraAttendees[idx]) {
+        extraAttendees[idx].count = Math.max(1, extraAttendees[idx].count + delta);
+        renderMobileExtraList();
+        renderPrintSheet();
+        calculateTotals();
+      }
+    }
+
+    function removeExtraAttendee(idx) {
+      extraAttendees.splice(idx, 1);
+      renderMobileExtraList();
+      renderPrintSheet();
+      calculateTotals();
+    }
+
+    function handleInPersonInput(val) {
+      inPersonCount = parseInt(val) || 0;
+      document.getElementById('print-in-person').value = inPersonCount;
+      calculateTotals();
+    }
+
+    function calculateTotals() {
+      let groupChecksTotal = 0;
+
+      groupData.forEach(group => {
+        let groupChecked = 0;
+        group.members.forEach((m, idx) => {
+          if (attendanceState[`g${group.id}_m${idx}`]) {
+            groupChecked++;
+          }
+        });
+
+        const effectiveTotal = manualGroupTotals[group.id] !== undefined ? (parseInt(manualGroupTotals[group.id]) || 0) : groupChecked;
+        
+        // Update input display for print template
+        const printGroupInput = document.getElementById(`print-group-total-${group.id}`);
+        if (printGroupInput && manualGroupTotals[group.id] === undefined) {
+          printGroupInput.value = groupChecked || '';
+        }
+
+        groupChecksTotal += effectiveTotal;
+      });
+
+      // Extra Attendees total count
+      let extraCountTotal = 0;
+      extraAttendees.forEach(p => {
+        extraCountTotal += (p.count || 1);
+      });
+
+      // Zoom Total = Checkmarks + Extra Attendees
+      const finalZoomTotal = groupChecksTotal + extraCountTotal;
+
+      document.getElementById('mobile-zoom-display').innerText = finalZoomTotal;
+      document.getElementById('print-zoom-total').value = finalZoomTotal;
+
+      // In Person
+      const inPersonVal = parseInt(document.getElementById('mobile-in-person-input').value) || 0;
+      document.getElementById('print-in-person').value = inPersonVal;
+
+      // Grand Total
+      const grandTotal = finalZoomTotal + inPersonVal;
+      document.getElementById('mobile-grand-display').innerText = grandTotal;
+      document.getElementById('print-grand-total').value = grandTotal;
+    }
+
+    function setManualTotal(groupId, val) {
+      if (val === '') {
+        delete manualGroupTotals[groupId];
+      } else {
+        manualGroupTotals[groupId] = val;
+      }
+      calculateTotals();
+    }
+
     /* Renders the Print-Only Layout Matching the PDF (4 Columns Top, 3 Groups Bottom + Summary) */
     function renderPrintSheet() {
       // Render Groups 1 to 6
@@ -774,177 +966,6 @@
           </table>
         `;
       }
-    }
-
-    function removeExtraAttendee(idx) {
-      extraAttendees.splice(idx, 1);
-      renderMobileExtraList();
-      renderPrintSheet();
-      calculateTotals();
-    }
-
-    function handleInPersonInput(val) {
-      inPersonCount = parseInt(val) || 0;
-      document.getElementById('print-in-person').value = inPersonCount;
-      calculateTotals();
-    }
-
-    function calculateTotals() {
-      let groupChecksTotal = 0;
-
-      groupData.forEach(group => {
-        let groupChecked = 0;
-        group.members.forEach((m, idx) => {
-          if (attendanceState[`g${group.id}_m${idx}`]) {
-            groupChecked++;
-          }
-        });
-
-        const effectiveTotal = manualGroupTotals[group.id] !== undefined ? (parseInt(manualGroupTotals[group.id]) || 0) : groupChecked;
-        
-        // Update input display for print template
-        const printGroupInput = document.getElementById(`print-group-total-${group.id}`);
-        if (printGroupInput && manualGroupTotals[group.id] === undefined) {
-          printGroupInput.value = groupChecked || '';
-        }
-
-        groupChecksTotal += effectiveTotal;
-      });
-
-      // Extra Attendees total count
-      let extraCountTotal = 0;
-      extraAttendees.forEach(p => {
-        extraCountTotal += (p.count || 1);
-      });
-
-      // Zoom Total = Checkmarks + Extra Attendees
-      const finalZoomTotal = groupChecksTotal + extraCountTotal;
-
-      document.getElementById('mobile-zoom-display').innerText = finalZoomTotal;
-      document.getElementById('print-zoom-total').value = finalZoomTotal;
-
-      // In Person
-      const inPersonVal = parseInt(document.getElementById('mobile-in-person-input').value) || 0;
-      document.getElementById('print-in-person').value = inPersonVal;
-
-      // Grand Total
-      const grandTotal = finalZoomTotal + inPersonVal;
-      document.getElementById('mobile-grand-display').innerText = grandTotal;
-      document.getElementById('print-grand-total').value = grandTotal;
-    }
-
-    function setManualTotal(groupId, val) {
-      if (val === '') {
-        delete manualGroupTotals[groupId];
-      } else {
-        manualGroupTotals[groupId] = val;
-      }
-      calculateTotals();
-    }
-
-    /* Renders the Print-Only 6 Group Layout */
-    function renderPrintSheet() {
-      groupData.forEach(group => {
-        const container = document.getElementById(`print-group-${group.id}`);
-        if (!container) return;
-
-        let rowsHtml = '';
-        let groupCheckedCount = 0;
-
-        group.members.forEach((m, idx) => {
-          const key = `g${group.id}_m${idx}`;
-          const isChecked = !!attendanceState[key];
-          if (isChecked) groupCheckedCount++;
-
-          rowsHtml += `
-            <tr class="${m.faded ? 'faded-text' : ''}">
-              <td class="text-left font-medium overflow-hidden whitespace-nowrap">${m.firstName}</td>
-              <td class="text-left overflow-hidden whitespace-nowrap">${m.lastName}</td>
-              <td class="text-center text-[9px] overflow-hidden whitespace-nowrap">${m.role1 || ''}</td>
-              <td class="text-center text-[9px] overflow-hidden whitespace-nowrap">${m.role2 || ''}</td>
-              <td class="check-cell">
-                ${isChecked ? '<span class="check-mark">✓</span>' : ''}
-              </td>
-            </tr>
-          `;
-        });
-
-        // Fill empty rows to keep exact table size
-        const emptyRowsNeeded = Math.max(0, group.targetRows - group.members.length);
-        for (let i = 0; i < emptyRowsNeeded; i++) {
-          rowsHtml += `
-            <tr>
-              <td>&nbsp;</td>
-              <td>&nbsp;</td>
-              <td>&nbsp;</td>
-              <td>&nbsp;</td>
-              <td class="check-cell">&nbsp;</td>
-            </tr>
-          `;
-        }
-
-        const displayTotal = manualGroupTotals[group.id] !== undefined ? manualGroupTotals[group.id] : (groupCheckedCount || '');
-
-        container.innerHTML = `
-          <table class="group-table">
-            <thead>
-              <tr>
-                <th colspan="5" class="group-header-1">${group.title}</th>
-              </tr>
-              <tr>
-                <th colspan="5" class="group-header-2">${group.subtitle}</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${rowsHtml}
-            </tbody>
-            <tfoot>
-              <tr class="font-bold bg-gray-50">
-                <td colspan="4" class="text-left px-1.5 border border-gray-700">Group Total:</td>
-                <td class="text-center border border-gray-700">
-                  <input type="text" id="print-group-total-${group.id}" value="${displayTotal}" onchange="setManualTotal(${group.id}, this.value)" class="w-full text-center font-bold outline-none bg-transparent">
-                </td>
-              </tr>
-            </tfoot>
-          </table>
-        `;
-      });
-
-      renderPrintExtraList();
-    }
-
-    function renderPrintExtraList() {
-      const container = document.getElementById('print-extra-list');
-      if (!container) return;
-
-      const maxLines = 7;
-
-      if (extraAttendees.length === 0) {
-        let emptyLines = '';
-        for (let i = 0; i < maxLines; i++) {
-          emptyLines += `<div class="ruled-line"></div>`;
-        }
-        container.innerHTML = emptyLines;
-        return;
-      }
-
-      let html = '';
-      extraAttendees.forEach(person => {
-        html += `
-          <div class="flex items-center justify-between text-xs py-0.5 border-b border-gray-400">
-            <span class="font-semibold uppercase tracking-wide text-[10px]">
-              ${person.name} ${person.count > 1 ? `<span class="font-extrabold ml-1">- ${person.count}</span>` : ''}
-            </span>
-          </div>
-        `;
-      });
-
-      const fillCount = Math.max(0, maxLines - extraAttendees.length);
-      for (let i = 0; i < fillCount; i++) {
-        html += `<div class="ruled-line"></div>`;
-      }
-
-      container.innerHTML = html;
     }
 
     function clearAllChecks() {
