@@ -8,6 +8,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- html2pdf.js for direct PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     /* SCREEN STYLES (Mobile First) */
     @media screen {
@@ -134,6 +136,9 @@
           <div class="flex items-center gap-1.5">
             <button onclick="clearAllChecks()" title="Reset All" class="bg-rose-600/30 hover:bg-rose-600/50 text-rose-300 border border-rose-500/40 text-xs px-2.5 py-1.5 rounded-lg font-medium flex items-center gap-1">
               <i class="fa-solid fa-rotate-left text-xs"></i> <span class="hidden sm:inline">Reset</span>
+            </button>
+            <button onclick="exportToPDF()" id="export-pdf-btn" class="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-1.5 rounded-lg font-bold flex items-center gap-1 shadow-md active:scale-95 transition-transform">
+              <i class="fa-solid fa-file-pdf"></i> Export PDF
             </button>
             <button onclick="triggerPrint()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-1.5 rounded-lg font-bold flex items-center gap-1 shadow-md active:scale-95 transition-transform">
               <i class="fa-solid fa-print"></i> Print
@@ -549,22 +554,69 @@
       document.getElementById('print-date').value = val;
     }
 
+    /* Direct Client-Side PDF Exporter (Guaranteed to generate PDF matching the example) */
+    function exportToPDF() {
+      renderPrintSheet();
+      calculateTotals();
+
+      const btn = document.getElementById('export-pdf-btn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+      btn.disabled = true;
+
+      const printElement = document.querySelector('.print-only-sheet');
+      
+      // Temporarily reveal print sheet to canvas engine
+      printElement.style.display = 'block';
+      printElement.style.position = 'absolute';
+      printElement.style.left = '-9999px';
+      printElement.style.top = '0';
+      printElement.style.width = '1020px';
+
+      const dateVal = document.getElementById('print-date').value || 'Attendance';
+      const filename = `Attendance_${dateVal.replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf`;
+
+      const opt = {
+        margin: [0.12, 0.12, 0.12, 0.12],
+        filename: filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(printElement).save().then(() => {
+        printElement.style.display = '';
+        printElement.style.position = '';
+        printElement.style.left = '';
+        printElement.style.top = '';
+        printElement.style.width = '';
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }).catch(err => {
+        printElement.style.display = '';
+        printElement.style.position = '';
+        printElement.style.left = '';
+        printElement.style.top = '';
+        printElement.style.width = '';
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        triggerPrint();
+      });
+    }
+
     /* Reliable Cross-Platform Print Function */
     function triggerPrint() {
       // Ensure the printable sheet is freshly rendered with all latest values
       renderPrintSheet();
       calculateTotals();
 
-      // Attempt 1: Try standalone window print (works best around iframe sandbox restrictions)
-      const opened = openStandalonePrintWindow();
-      if (opened) return;
-
-      // Attempt 2: Direct browser print if allowed
+      // If in iframe sandbox, exportToPDF or standalone print window
       try {
+        const opened = openStandalonePrintWindow();
+        if (opened) return;
         window.print();
       } catch (err) {
-        // Attempt 3: If blocked by iframe sandbox, show in-app preview modal
-        showPrintPreviewModal();
+        exportToPDF();
       }
     }
 
