@@ -132,11 +132,8 @@
           </div>
 
           <div class="flex items-center gap-1.5">
-            <button onclick="loadSampleData()" title="Load Sample Data" class="bg-amber-600/30 hover:bg-amber-600/50 text-amber-300 border border-amber-500/40 text-xs px-2 py-1.5 rounded-lg font-medium flex items-center gap-1">
-              <i class="fa-solid fa-file-signature text-xs"></i> <span class="hidden sm:inline">Sample</span>
-            </button>
-            <button onclick="clearAllChecks()" title="Reset All" class="bg-rose-600/30 hover:bg-rose-600/50 text-rose-300 border border-rose-500/40 text-xs px-2 py-1.5 rounded-lg font-medium flex items-center gap-1">
-              <i class="fa-solid fa-rotate-left text-xs"></i>
+            <button onclick="clearAllChecks()" title="Reset All" class="bg-rose-600/30 hover:bg-rose-600/50 text-rose-300 border border-rose-500/40 text-xs px-2.5 py-1.5 rounded-lg font-medium flex items-center gap-1">
+              <i class="fa-solid fa-rotate-left text-xs"></i> <span class="hidden sm:inline">Reset</span>
             </button>
             <button onclick="triggerPrint()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-1.5 rounded-lg font-bold flex items-center gap-1 shadow-md active:scale-95 transition-transform">
               <i class="fa-solid fa-print"></i> Print
@@ -1058,61 +1055,6 @@
       const initialDate = getFormattedCurrentDate();
       document.getElementById('mobile-date').value = initialDate;
       document.getElementById('print-date').value = initialDate;
-
-      renderMobileList();
-      renderPrintSheet();
-      calculateTotals();
-    }
-
-    function loadSampleData() {
-      attendanceState = {};
-      manualGroupTotals = {};
-
-      // Sample Checks matching original image (25 total checkmarks)
-      attendanceState['g1_m11'] = true; // Steve Palese
-      attendanceState['g1_m16'] = true; // Laura Vasil
-      attendanceState['g1_m20'] = true; // Cooper Mellow
-
-      attendanceState['g2_m8'] = true;  // William Clouser
-      attendanceState['g2_m13'] = true; // Jane Littrell
-
-      attendanceState['g3_m5'] = true;  // Jo Comfort
-      attendanceState['g3_m16'] = true; // Krystal McCann
-
-      attendanceState['g4_m2'] = true;  // Mandy Babbitt
-      attendanceState['g4_m18'] = true; // Richard Kruse
-
-      attendanceState['g5_m16'] = true; // Kayla Martinez
-      manualGroupTotals[5] = 3;         // Group 5 written total = 3
-
-      attendanceState['g6_m1'] = true;  // Val January
-      attendanceState['g6_m2'] = true;  // Mark Bailey
-      attendanceState['g6_m3'] = true;  // Kerri Bailey
-      attendanceState['g6_m7'] = true;  // Claire January
-      attendanceState['g6_m8'] = true;  // Doug Lawhon
-      attendanceState['g6_m9'] = true;  // Claudia Lawhon
-      attendanceState['g6_m10'] = true; // Joe Miller
-      attendanceState['g6_m11'] = true; // Cindy Miller
-      attendanceState['g6_m12'] = true; // Isaiah Peterson
-      attendanceState['g6_m13'] = true; // Jordan Peterson
-      attendanceState['g6_m14'] = true; // Rob Singleton
-      attendanceState['g6_m19'] = true; // Keith Graves
-      attendanceState['g6_m20'] = true; // Lisa Graves
-      manualGroupTotals[6] = 13;        // Group 6 written total = 13
-
-      // Handwritten Extra Attendees from example image
-      extraAttendees = [
-        { name: "K. SINGLETARY", count: 1 },
-        { name: "J. COMFORT", count: 1 },
-        { name: "K. AUSTIN", count: 1 },
-        { name: "HAL", count: 1 },
-        { name: "R. BAKER", count: 1 },
-        { name: "TIM B", count: 1 },
-        { name: "TIMOTHY", count: 1 },
-        { name: "NIETO", count: 2 } // Nieto counts as 2 people
-      ];
-
-      document.getElementById('mobile-in-person-input').value = '80';
 
       renderMobileList();
       renderPrintSheet();
